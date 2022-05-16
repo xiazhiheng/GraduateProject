@@ -97,7 +97,7 @@ export default {
           }
         });
       }else if(this.userInfo.role == "teacher"){
-        this.$axios.post('/teacher/findNoAgreeStudent',{"teacherId":this.userInfo.id}).then(res =>{
+        this.$axios.post('/teacher/findAgreeStudent',{"teacherId":this.userInfo.id}).then(res =>{
           if(res.data.code == 200){
             this.studentList = res.data.data;
           }else{
@@ -120,6 +120,7 @@ export default {
         });
       }else if(this.userInfo.role == "teacher"){
         this.$axios.post('/teacher/findNoAgreeStudent',{"teacherId":this.userInfo.id}).then(res =>{
+          console.log(res);
           if(res.data.code == 200){
             this.waitAgreeList = res.data.data;
             console.log(this.waitAgreeList);
@@ -206,7 +207,7 @@ export default {
       });
     },
     addTeacher(id){
-      this.$axios.post('/student/addTeacher',{"studentId":this.userInfo.id,"teacherId":id}).then(res =>{
+      this.$axios.post('/student/addTeacher?studentId='+this.userInfo.id+"&teacherId="+id).then(res =>{
         if(res.data.code == 200){
           this.userList = [];
           this.$message({

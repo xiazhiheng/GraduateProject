@@ -41,7 +41,9 @@
         </el-header>
         <el-main>
           <el-scrollbar ref="myScrollbar" height="200px">
-            <button @click="getAllMessage">查看历史消息</button>
+            <div id="historyBtn_div">
+              <button @click="getAllMessage">查看历史消息</button>
+            </div>
             <ul v-for="item in message">
               <div v-if="item.chatSentId == userInfo.id" id="m_right">
                 <p>{{item.chatContent}}</p>
@@ -377,5 +379,10 @@ export default{
 .item {
   margin-top: 10px;
   margin-right: 40px;
+}
+#historyBtn_div{
+  display: flex;
+  text-align: center;
+  justify-content: center;
 }
 </style>

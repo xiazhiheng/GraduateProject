@@ -7,7 +7,7 @@
           <el-button @click="search"><el-icon><search/></el-icon></el-button>
         </template>
       </el-input>
-      <el-button @click="" id="autoBtn">自动组卷</el-button>
+      <el-button @click="auto_dialogVisible = true" id="autoBtn">自动组卷</el-button>
     </div>
     
     <!-- <el-input
@@ -78,18 +78,18 @@
       <section class="update">
         <el-form ref="form" :model="autoForm" label-width="80px">
           <el-form-item label="名称">
-            <el-input v-model="form.testPaperName"></el-input>
+            <el-input v-model="autoForm.testPaperName"></el-input>
           </el-form-item>
           <el-form-item label="时长">
-            <el-input v-model="form.testPaperTime"></el-input>
+            <el-input v-model="autoForm.testPaperTime" type="number"></el-input>
           </el-form-item>
           <el-form-item label="难度">
-            <el-radio v-model="form.testPaperDifficulty" label="1">简单</el-radio>
-            <el-radio v-model="form.testPaperDifficulty" label="2">中等</el-radio>
-            <el-radio v-model="form.testPaperDifficulty" label="3">困难</el-radio>
+            <el-radio v-model="autoForm.testPaperDifficulty" label="1">简单</el-radio>
+            <el-radio v-model="autoForm.testPaperDifficulty" label="2">中等</el-radio>
+            <el-radio v-model="autoForm.testPaperDifficulty" label="3">困难</el-radio>
           </el-form-item>
-          <el-form-item>
-            <el-input v-model="form.testpaperQuestionNums"></el-input>
+          <el-form-item label="题目数">
+            <el-input v-model="autoForm.testPaperQuestionNums" type="number"></el-input>
           </el-form-item>
         </el-form>
       </section>
@@ -148,9 +148,13 @@ export default {
       
     },
     search(){
-      this.$axios.post('student/findTestPaperByName',).then(res =>{
+      this.$axios.post('/student/findTestPaperByName',{"testPaperName":this.input}).then(res =>{
+        console.log(res);
         if(res.data.code==200){
-          this.data = res.data.data;
+            this.data=[];
+          if(res.data.data!=null){
+             this.data[0] = res.data.data;
+          }
           this.getPaperInfoBypage();
         }else{
           console.log("error");
@@ -218,18 +222,29 @@ export default {
     },
     auto_submit(){
       this.autoForm.testPaperMadeById = this.userInfo.id;
-      this.$axios.post('/teacher/autoAddTestPaper',this.autoForm).then(res => {
-        if(res.data.code == 200) {
-          this.$message({
-            message: '创建成功',
-            type: 'success'
-          })
-        }else{
-          console.log("创建失败");
-        }
-        this.getPaperInfo();
-        this.dialogVisible = false;
-      })
+      if(this.autoForm.testPaperName==null || this.autoForm.testPaperName==""){
+        this.$message.error("试卷名称不能为空");
+      }else if(this.autoForm.testPaperTime==null || this.autoForm.testPaperTime==""){
+        this.$message.error("考试时长不能为空");
+      }else if(this.autoForm.testPaperDifficulty==null){
+        this.$message.error("请选择试卷难度");
+      }else if(this.autoForm.testPaperQuestionNums==null || this.autoForm.testPaperQuestionNums==""){
+        this.$message.error("题目数不能为空");
+      }else{
+        this.$axios.post('/teacher/autoAddTestPaper',this.autoForm).then(res => {
+          if(res.data.code == 200) {
+            this.$message({
+              message: '创建成功',
+              type: 'success'
+            })
+            this.getPaperInfo();
+            this.auto_dialogVisible = false;
+            this.autoForm = {};
+          }else{
+            this.$message.error(res.data.message);
+          }
+        })
+      }
     },
     handleClose(done) { //关闭提醒
       this.$confirm('确认关闭？')

@@ -66,26 +66,26 @@ export const store = createStore({
         {
           index: '1',
           title: '试题管理',
-          icon: 'icon-tiku',
+          icon: '<plus/>',
           content:[{item:'试题管理',path:'/t_questionManage'},{item:'添加试题',path:'/t_addQuestion'},],
         },
         {
           index: '2',
           title: '试卷管理',
-          icon: 'icon-tiku',
+          icon: '<Search/>',
           content:[{item:'试卷管理',path:'/t_paperManage'},{item:'添加试卷',path:'/t_addPaper'},],
         },
         {
           index: '3',
           title: '知识点管理',
-          icon: 'icon-tiku',
+          icon: '',
           content:[{item:'知识点管理',path:'/t_knowledge'},{item:'添加知识点',path:'/addKnowledge'},],
         },
         {
           index: '4',
           title: '统计',
-          icon: 'icon-tiku',
-          content:[{item:'做题情况',path:''}],
+          icon: '',
+          content:[{item:'做题情况',path:'/paperStatistics'}],
         },
       ],
       subject:[
@@ -291,6 +291,9 @@ export const store = createStore({
     },
     setUserInfo(state,userInfo){
       state.userInfo = userInfo;
+    },
+    setUserImg(state,ImageUrl){
+      state.userInfo.ImgUrl = ImageUrl;
     },
   },
   getters:{

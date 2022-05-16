@@ -46,7 +46,8 @@
                     </li>
                   </ul>
                 </div>
-                <div class="final" @click="commit()">结束考试</div>
+                <div v-if="!flag" class="final" @click="commitTest()">结束考试</div>
+                <div v-else class="final" @click="exit()">退出</div>
               </div>
             </div>
           </transition>
@@ -63,7 +64,7 @@
             <div class="content" v-if="type">
               <p class="topic"><span class="number">{{Index+1}}</span>{{paperData.questionList[1][Index].questionContent}}</p>
               <div >
-                <el-checkbox-group v-model="checkList[Index]">
+                <el-checkbox-group v-model="checkList[Index]" @change="checkChange">
                   <el-checkbox :id="answer[1][Index][0]" label="A" class="checkBox" :disabled="bg_flag[type][Index]">A:{{paperData.questionList[1][Index].questionOptionA}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][1]" label="B" class="checkBox" :disabled="bg_flag[type][Index]">B:{{paperData.questionList[1][Index].questionOptionB}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][2]" label="C" class="checkBox" :disabled="bg_flag[type][Index]">C:{{paperData.questionList[1][Index].questionOptionC}}</el-checkbox>
@@ -159,7 +160,6 @@ export default {
     return {
       load:false,
       paperId:this.$route.query.paperId,
-      // collect_flag:this.$route.params.flag,//是否是作答收藏夹题目
       bg_flag: [[],[]], //已答标识符,已答改变背景色
       slider_flag: true, //左侧显示隐藏标识符
       isPractice:[[],[]],//是否展示解析
@@ -167,6 +167,7 @@ export default {
       thumpFlag: [],//是否点赞
       stampFlag:[],//是否点踩
       type:0,//题目种类
+      flag:false, 
 
       input:null,
 
@@ -313,8 +314,12 @@ export default {
     },
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
-        this.type = 1;
-        this.Index = 0;
+        if(this.checkListNum==0){
+          this.commitTest();
+        }else{
+          this.type = 1;
+          this.Index = 0;
+        }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
         this.commitTest();
       }else{
@@ -460,6 +465,7 @@ export default {
       }
     },
     commitTest(){
+      this.flag = true;
       console.log(this.radio);
       console.log(this.checkAnswer);
     },
@@ -496,6 +502,12 @@ export default {
       }).catch(() => {
         console.log("继续答题")
       })
+    },
+    exit(){
+      this.$router.go(-1);
+    },
+    checkChange(val) { 
+      this.checkList[this.Index].sort();
     },
   },
 }

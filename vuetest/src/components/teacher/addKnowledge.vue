@@ -1,5 +1,5 @@
 <template>
-  <section class="addKnowledge">
+  <section id="addKnowledge">
     <el-form ref="form" :model="form" label-width="80px">
       <el-form-item label="章节">
         <el-cascader v-model="value" :options="subject" @change="handleChange"></el-cascader>
@@ -43,7 +43,7 @@ export default {
   },
   computed:mapState(["subject","url",'userInfo']),
   methods: {
-     beforeUpload(file) {
+    beforeUpload(file) {
       console.log("file",file)
       const isMP4 = file.type === 'video/mp4';
       const isLt2M = file.size / 1024 / 1024 < 200;
@@ -113,7 +113,7 @@ export default {
 }
 </script>
 <style>
-.addKnowledge{
+#addKnowledge{
   width: 300px;
   text-align: left;
   margin: 50px;

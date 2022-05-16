@@ -156,12 +156,12 @@ export default {
 			})
     },
     search(){
-      this.$axios.post('').then(res =>{
+      this.$axios.post('/student/findUserByIdOrUserName?message='+this.input).then(res =>{
         if(res.data.code==200){
           this.data = res.data.data;
           this.getTeacherInfoBypage();
         }else{
-          console.log("error");
+          this.$message.error("未搜索到结果");
         }
       })
     },

@@ -9,24 +9,24 @@
     </div>
     <el-table :data="pagination.data" border id="k_table">
     <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
-    <el-table-column prop="subjectName" label="课程"></el-table-column>
-    <el-table-column prop="chapterName" label="章节" width="200px"></el-table-column>
-    <el-table-column prop="knowledgeContent" label="内容" width="150px"></el-table-column>
-    <el-table-column label="视频" width="100px">
-      <template v-slot="scope">
-        <el-button @click="play(scope.$index)">播放</el-button>
-      </template>
-    </el-table-column>
-    <el-table-column prop="state" label="状态"></el-table-column>
-    <el-table-column width="100px" fixed="right">
-      <template v-slot="scope">
-        <!-- <el-button v-if="scope.row.knowledgeStatus" @click="k_ban(scope.row.id)" type="primary" size="small">公开</el-button>
-        <el-button v-else @click="k_ban(scope.row.id)" type="danger" size="small">私有</el-button> -->
-        <!-- <el-button @click="k_update(scope.$index)" type="primary" size="small">编辑</el-button> -->
-        <el-button @click="k_delete(scope.row.knowledgeId)" type="danger" size="small">删除</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column prop="subjectName" label="课程"></el-table-column>
+      <el-table-column prop="chapterName" label="章节" width="200px"></el-table-column>
+      <el-table-column prop="knowledgeContent" label="内容" width="150px"></el-table-column>
+      <el-table-column label="视频" width="100px">
+        <template v-slot="scope">
+          <el-button @click="play(scope.$index)">播放</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column prop="state" label="状态"></el-table-column>
+      <el-table-column width="100px" fixed="right">
+        <template v-slot="scope">
+          <!-- <el-button v-if="scope.row.knowledgeStatus" @click="k_ban(scope.row.id)" type="primary" size="small">公开</el-button>
+          <el-button v-else @click="k_ban(scope.row.id)" type="danger" size="small">私有</el-button> -->
+          <!-- <el-button @click="k_update(scope.$index)" type="primary" size="small">编辑</el-button> -->
+          <el-button @click="k_delete(scope.row.knowledgeId)" type="danger" size="small">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
   
   <el-pagination

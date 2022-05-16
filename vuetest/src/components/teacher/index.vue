@@ -1,8 +1,10 @@
 // 展示组件页面
 <template>
   <div id="index">
-    <header1 class="topbar"></header1>
-    <section class="container" id="container">
+    <div class="topbar">
+      <header1></header1>
+    </div>
+    <div class="container" id="container">
       <div class="left_side">
         <mainLeft></mainLeft>
       </div>
@@ -10,7 +12,7 @@
         <!-- <navigator class="nav"></navigator> -->
         <router-view></router-view>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -47,20 +49,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#container{
-  max-width: 2000px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  height: 100%;
+*{		/* CSS Reset */
+	margin : 0;
+	padding : 0;
 }
-#index .nav {
-  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+#container{
+  height: 100%;
+  max-width: 100vw;
+  min-height: calc( 100vh - 80px);
+  padding: 0;
+  // overflow: auto;
+}
+#index{
+   height: 100%;
+   .nav {
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+} 
+.topbar{
+ 
 }
 .container {
   display: flex;
   background-color: #fff;
+}
+.left_side{
+  
 }
 .main_wrapper {
   overflow: hidden;

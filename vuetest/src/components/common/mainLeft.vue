@@ -11,10 +11,10 @@
       :collapse="flag"
       background-color="#0f6fed"  
       menu-trigger="click" router>
-      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index">
+      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index" class="open">
         <template v-slot:title>
           <div class="left-width">
-            <i class="iconfont" :class="item.icon"></i>
+            <el-icon class="iconfont"><search/></el-icon>
             <span  class="title">{{item.title}}</span>
           </div>
         </template>
@@ -34,6 +34,7 @@ export default {
   data() {
     return {
       menu:null,
+     
     }
   },
   computed: mapState(['flag','userInfo',"a_menu","t_menu"]),
@@ -63,23 +64,19 @@ export default {
 </script>
 
 <style>
-
-
 .el-menu-vertical-demo .el-submenu__title {
+  
   overflow: hidden;
 }
 .left-width .iconfont {
   font-size: 18px;
   color: rgb(143, 18, 18);
 }
-.left-width {
-  width: 213px;
-}
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   /* min-height: 500px; */
 }
 #left {
-  min-height: 500px;
+  /* min-height: 500px; */
   height: 100%;
   background-color: #0f6fed;
   z-index: 0;

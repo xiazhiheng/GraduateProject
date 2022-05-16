@@ -48,11 +48,11 @@ export default {
 
 <style lang="scss" scoped>
 #container{
-  max-width: 2000px;
+  // max-width: 2000px;
   width: 100%;
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: calc( 100vh - 80px);
 }
 #index .nav {
   box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
@@ -63,7 +63,7 @@ export default {
   background-color: #fff;
 }
 .main_wrapper {
-  overflow: hidden;
+  overflow-x:hidden;
   flex: 1;
   background-color: #fff;
 }

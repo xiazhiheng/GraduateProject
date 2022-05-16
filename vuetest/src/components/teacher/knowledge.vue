@@ -1,12 +1,24 @@
 <template>
   <div class="all">
      <div id="top">
-      <el-input v-model="input" id="search">
-        <template #append>
-          <el-button @click="search"><el-icon><search/></el-icon></el-button>
-        </template>
-      </el-input>
-    </div>
+        <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
+        <el-option
+          v-for="item in subject"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+        </el-select>
+        <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
+          <el-option v-if="condition.courseId!=null"
+            v-for="item in subject[condition.courseId-1].children"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-button @click="search">检索</el-button>
+      </div>
     <el-table :data="pagination.data" border id="k_table">
     <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
     <el-table-column prop="subjectName" label="课程"></el-table-column>
@@ -88,6 +100,10 @@ export default{
       value:[],
       input:null,
       data:[],
+      condition:{
+        courseId:null,
+        chapterId:null,
+      },
       pagination: {
         //分页后的教师信息
         current: 1, //当前页
@@ -117,7 +133,7 @@ export default{
       })
     },
     search(){
-      this.$axios.post('').then(res =>{
+      this.$axios.post('admin/findKnowledgeByChapterIdAndCourseId',).then(res =>{
         if(res.data.code==200){
           this.data = res.data.data;
           this.getPageInfo();
@@ -136,16 +152,6 @@ export default{
       }
        console.log(this.pagination.data);
     },
-    // k_ban(id){
-    //   this.$axios.post('');
-    //   this.getKnowledgeInfo();
-    // },
-    // k_update(index){
-    //   this.form = this.pagination.data[index];
-    //   this.value[0] = this.form.courseId;
-    //   this.value[1] = this.form.chapterId;
-    //   this.dialogVisible = true;
-    // },
     play(index){
       this.videoUrl = this.pagination.data[index].videoUrl;
       this.dialogVisible = true;
@@ -166,20 +172,6 @@ export default{
       })
 
     },
-    // submit() { //提交更改
-    //   this.dialogVisible = false,
-    //   this.$axios('').then(res => {
-    //     if(res.data.code == 200) {
-    //       this.$message({
-    //         message: '更新成功',
-    //         type: 'success'
-    //       })
-    //     }else{
-    //       console.log("修改失败");
-    //     }
-    //     this.getTeacherInfo()
-    //   })
-    // },
     handleSizeChange(val) {
       this.pagination.size = val;
       this.getPageInfo();

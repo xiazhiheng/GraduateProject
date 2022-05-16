@@ -2,8 +2,8 @@
   <div class="grid-content bg-purple-light hr">
     <el-dropdown>
       <div class="el-dropdown-link" id="login_head">
-        <el-avatar :size="30" :src="userInfo.imgUrl" class="h-avatar" ></el-avatar>
-        <el-button type="text" id="login_name">{{userInfo.name}}</el-button>
+        <el-avatar :size="50" :src="userInfo.imgUrl" class="h-avatar" :fit="none"></el-avatar>
+        <!-- <el-button type="text" id="login_name">{{userInfo.name}}</el-button> -->
       </div>
       <template #dropdown>
         <el-dropdown-menu>
@@ -13,6 +13,7 @@
             <el-badge is-dot class="item" v-if="unReadFlag"></el-badge>
           </el-dropdown-item>
           <el-dropdown-item><el-button type="text" @click="addressList">通讯录</el-button></el-dropdown-item>
+          <el-dropdown-item><el-button type="text" @click="up_dialogVisible = true">修改密码</el-button></el-dropdown-item>
           <el-dropdown-item><el-button type="text" @click="to_login">退出登录</el-button></el-dropdown-item>
         </el-dropdown-menu>
       </template>  
@@ -48,6 +49,27 @@
     :before-close="s_handleClose">
       <p>{{memo.studentScheduleContent}}</p>
     </el-dialog>
+    <!-- 修改密码 -->
+    <el-dialog 
+    title="修改密码"
+    v-model="up_dialogVisible"
+    :before-close="s_handleClose">
+      <el-form id="form">
+        <el-form-item label="旧密码 :">
+          <el-input v-model="form.oldPassword" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="新密码 :">
+          <el-input v-model="form.newPassword" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="重复密码:">
+          <el-input v-model="form.repeatPassword" show-password></el-input>
+        </el-form-item>
+          <div id="footer">
+          <el-button @click="cancel">取 消</el-button>
+          <el-button type="primary" @click="submit()">确 定</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
 
   </div>
 </template>
@@ -71,21 +93,25 @@
         m_dialogVisible:false,
         a_dialogVisible:false,
         s_dialogVisible:false,
+        up_dialogVisible:false,
         dialogVisible:true,
         display:false,
         unReadFlag:false,
         memo:{},
+        form:{},
       }
     },
     created(){
-      this.getSchedule();
-      this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
-        console.log(res.data);
-        if(res.data.code==200){
-          this.unReadFlag = true;
-        }
-        console.log(this.unReadFlag);
-      })
+      if(this.userInfo.id!=null){
+        this.getSchedule();
+        this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
+          console.log(res.data);
+          if(res.data.code==200){
+            this.unReadFlag = true;
+          }
+          console.log(this.unReadFlag);
+        })
+      }
     },
     methods:{
       getSchedule(){
@@ -109,7 +135,6 @@
         this.$router.push('/s_addressList');
       },
       pInfo(){
-        console.log("pInfo")
         this.p_dialogVisible = true;
       },
       message(){
@@ -130,7 +155,41 @@
       },
       s_handleClose(){
         this.s_dialogVisible = false;
-      }
+      },
+      cancel(){
+        this.up_dialogVisible = false;
+        this.form = {};
+      },
+      submit(){
+        this.$axios.post("/student/ourMessage",{'studentId':this.userInfo.id}).then(res =>{
+          console.log(res.data);
+          if(res.data.code==200){
+            let password = res.data.data.userPassword;
+            if(this.form.oldPassword!=password){
+              this.$message.error('密码错误');
+            }else if(this.form.newPassword == this.form.oldPassword){
+              this.$message.error('新旧密码重复');
+            }else if(this.form.newPassword==null || this.form.newPassword==""){
+              this.$message.error('请输入新密码');
+            }else if(this.form.newPassword!=this.form.repeatPassword){
+              this.$message.error('两次密码不一致');
+            }else{
+              this.$axios.post('/student/updatePassword',{"userId":this.userInfo.id,"userPassword":this.form.newPassword,"userOldPassword":password}).then(res=>{
+                console.log(res);
+                if(res.data.code==200){
+                  this.$message.success('修改成功');
+                  this.up_dialogVisible = false;
+                  this.form = {};
+                }else{
+                  console.log("error");
+                }
+              })
+            }
+          }else{
+            console.log("error");
+          }
+        })
+      },
     }
   }
 </script>
@@ -158,5 +217,8 @@
   .item {
     margin-top: 10px;
     margin-right: 40px;
+  }
+  #form{
+    max-width: 300px;
   }
 </style>

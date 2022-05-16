@@ -51,7 +51,7 @@
             <div class="content" v-if="type">
               <p class="topic"><span class="number">{{Index+1}}</span>{{paperData.questionList[1][Index].questionContent}}</p>
               <div >
-                <el-checkbox-group v-model="checkList[Index]">
+                <el-checkbox-group v-model="checkList[Index]" @change="checkChange">
                   <el-checkbox :id="answer[1][Index][0]" label="A" class="checkBox" :disabled="bg_flag[type][Index]">A:{{paperData.questionList[1][Index].questionOptionA}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][1]" label="B" class="checkBox" :disabled="bg_flag[type][Index]">B:{{paperData.questionList[1][Index].questionOptionB}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][2]" label="C" class="checkBox" :disabled="bg_flag[type][Index]">C:{{paperData.questionList[1][Index].questionOptionC}}</el-checkbox>
@@ -87,7 +87,7 @@
             <div class="analysis" v-show="isPractice[type][Index]">
               <ul>
                 <li> <el-tag type="success">正确答案：</el-tag><span class="right">{{paperData.questionList[type][Index].questionAnswer}}</span></li>
-                <li v-if="paperData.questionList[type][Index].knowledge!=null"><el-tag>知识点：<a href="#" @click="play">{{paperData.questionList[type][Index].knowledge}}</a></el-tag></li>
+                <li v-if="paperData.questionList[type][Index].knowledgeId!=null"><el-tag>知识点：<el-button type="text" @click="play">{{paperData.questionList[type][Index].knowledgeContent}}</el-button></el-tag></li>
                 <li><el-tag>题目解析：</el-tag></li>
                 <li>{{paperData.questionList[0][Index].questionAnalysis == null ? '暂无解析': paperData.questionList[type][Index].questionAnalysis}}</li>
               </ul>
@@ -138,6 +138,19 @@
       </el-main>
     </el-container>
   </div>
+  <!-- 知识点视频播放 -->
+  <el-dialog
+    v-model="k_dialogVisible"
+    width="50%"
+    :before-close="handleClose">
+    <video height="400"
+    width="400"
+    controls
+    autoplay 
+    type="video/mp4"
+    :src="videoUrl">
+    </video>
+  </el-dialog>
 </template>
 
 <script>
@@ -146,6 +159,8 @@ export default {
   data() {
     return {
       load:false,
+      k_dialogVisible:false,
+      videoUrl:null,
       paperId:this.$route.query.paperId,
       isFrist:Number(this.$route.query.isFrist),
       bg_flag: [[],[]], //已答标识符,已答改变背景色
@@ -155,6 +170,8 @@ export default {
       thumpFlag: [],//是否点赞
       stampFlag:[],//是否点踩
       type:0,//题目种类
+      k_dialogVisible:false,
+      videoUrl:null,
 
       input:null,
 
@@ -211,7 +228,6 @@ export default {
       // let date = new Date()
       // this.startTime = this.getTime(date)
       if(!this.isFrist){
-        console.log("test1")
         this.$axios.post('/studentAnswer/answerPublicQuestionAgain?studentId='+this.userInfo.id+"&chapterId="+this.paperId).then(res=>{
           console.log(res.data);
           if(res.data.code==200){
@@ -475,6 +491,9 @@ export default {
         console.log("输入为空");
       }
     },
+    play(){
+      
+    },
     commit() { //答案提交计算分数
       this.$confirm("是否交卷",{
         confirmButtonText: '立即交卷',
@@ -497,6 +516,16 @@ export default {
         console.log("继续答题")
       })
     },
+    checkChange(val) { 
+      this.checkList[this.Index].sort();
+    },
+    play(){
+      this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.paperData.questionList[this.type][this.Index].knowledgeId}).then(res=>{
+        console.log("knowledge",res);
+        this.videoUrl = res.data.data.videoUrl;
+        this.k_dialogVisible = true;
+      })
+    }
   },
   beforeRouteLeave(){
     this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);

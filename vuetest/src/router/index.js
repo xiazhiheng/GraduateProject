@@ -109,6 +109,10 @@ const routes = [
       {
         path:'/addKnowledge',
         component: () => import('../components/teacher/addKnowledge.vue'),
+      },
+      {
+        path:'/paperStatistics',
+        component: () => import('../components/charts/paperStatistics.vue'),
       }
     ],
   },

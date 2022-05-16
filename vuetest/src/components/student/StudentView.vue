@@ -5,13 +5,14 @@
       <el-header id="header">
         <div class="head">
           <el-row :gutter="10">
-            <el-col :span="6" class="hidden-xs-only">
-              <el-input v-model="input" placeholder="请输入内容"></el-input>
+            <el-col :span="6" id="lt">
+              <span id="title" @click="to_index">ZG-EXAM-SYSTEM</span>
+              <!-- <el-input v-model="input" placeholder="请输入内容"></el-input> -->
               <!-- <el-button>搜索</el-button> -->
             </el-col>
             <el-col :span="15">
               <el-menu class="el-menu-demo" mode="horizontal">
-                <el-menu-item id="menu" index="1" @click="to_index">首页</el-menu-item>
+                <!-- <el-menu-item id="menu" index="1" @click="to_index">首页</el-menu-item> -->
                 <el-menu-item id="menu" index="2" @click="to_qes">题库</el-menu-item>
                 <el-menu-item id="menu" index="3" @click="to_paper">试卷</el-menu-item>
                 <el-menu-item id="menu" index="4" @click="to_collect">收藏</el-menu-item>
@@ -100,6 +101,9 @@ export default {
 }
 </script>
 <style>
+  img {
+    width: 100%;
+  }
   #menu{
     font-size: 16px;
     font-family: 微软雅黑, 'Microsoft YaHei';
@@ -202,6 +206,19 @@ export default {
   .grid-content {
     border-radius: 4px;
     min-height: 36px;
+  }
+  #title{
+    font-size: 30px;
+    cursor: pointer;
+  }
+  #lt{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #menu{
+    font-family: 微软雅黑, 'Microsoft YaHei';
+    font-size: 16px;
   }
   /* .el-container:nth-child(5) .el-aside,
   .el-container:nth-child(6) .el-aside {

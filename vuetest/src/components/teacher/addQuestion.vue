@@ -231,6 +231,7 @@ export default {
   margin-top: 50px;
   padding: 0px 40px;
   width: 400px;
+  overflow: auto;
 }
 </style>
 

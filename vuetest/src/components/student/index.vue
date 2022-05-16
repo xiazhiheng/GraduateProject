@@ -26,9 +26,9 @@
         </el-main>
         <el-aside width="200px" id="index_aside">
           <div class="demo-basic--circle" id="avatar">
-            <el-avatar :size="75" :src="userInfo.imgUrl" class="as-avatar"></el-avatar>
+            <el-avatar :size="130" :src="userInfo.imgUrl" class="as-avatar"></el-avatar>
           </div>
-          <el-button id="answer_button">开始答题</el-button>
+          <el-button id="answer_button">{{userInfo.name}}</el-button>
         </el-aside>
       </el-container>
 </template>

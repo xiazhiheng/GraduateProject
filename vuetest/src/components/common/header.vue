@@ -14,8 +14,12 @@
             <div class="out" ref="out" v-show="login_flag">
               <ul v-if="userInfo.role == 'teacher'">
                 <li @click="pInfor"><a href="javascript:;">个人信息</a></li>
-                <li @click="message"><a href="javascript:;">消息</a></li>
+                <li @click="message">
+                  <a href="javascript:;">消息</a>
+                  <el-badge is-dot class="item" v-if="unReadFlag"></el-badge>
+                </li>
                 <li @click="addressList"><a href="javascript:;">通讯录</a></li>
+                <li @click="up_dialogVisible = true"><a href="javascript:;">修改密码</a></li>
                 <li class="exit" @click="exit()"><a href="javascript:;">退出登录</a></li>
               </ul>
               <ul v-else>
@@ -28,16 +32,19 @@
     </el-row>
   </header>
 
+  <!-- 个人信息 -->
   <el-dialog 
   v-model="p_dialogVisible"
   :before-close="p_handleClose">
     <pInfor></pInfor>
   </el-dialog>
+  <!-- 消息 -->
   <el-dialog 
   v-model="m_dialogVisible"
   :before-close="m_handleClose">
     <message></message>
   </el-dialog>
+  <!-- 通讯录 -->
   <el-dialog 
   title="通讯录"
   center
@@ -45,6 +52,27 @@
   v-model="a_dialogVisible"
   :before-close="a_handleClose">
     <addressList></addressList>
+  </el-dialog>
+  <!-- 修改密码 -->
+  <el-dialog 
+    title="修改密码"
+    v-model="up_dialogVisible"
+    :before-close="s_handleClose">
+      <el-form id="form">
+        <el-form-item label="旧密码 :">
+          <el-input v-model="form.oldPassword" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="新密码 :">
+          <el-input v-model="form.newPassword" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="重复密码:">
+          <el-input v-model="form.repeatPassword" show-password></el-input>
+        </el-form-item>
+          <div id="footer">
+          <el-button @click="cancel">取 消</el-button>
+          <el-button type="primary" @click="submit()">确 定</el-button>
+        </div>
+      </el-form>
   </el-dialog>
 </template>
 
@@ -62,6 +90,9 @@ export default {
       p_dialogVisible: false,
       m_dialogVisible: false,
       a_dialogVisible: false,
+      up_dialogVisible:false,
+      unReadFlag:false,
+      form:{},
     }
   },
   components:{
@@ -70,7 +101,12 @@ export default {
     pInfor,
   },
   created() {
-    
+    this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
+      console.log(res.data);
+      if(res.data.code==200){
+        this.unReadFlag = true;
+      }
+    })
   },
   computed: mapState(["flag","menu",'userInfo']),
   methods: {
@@ -81,7 +117,11 @@ export default {
     //左侧栏放大缩小
     ...mapMutations(["toggle"]),
     index() {
-      this.$router.push({path: '/static'})
+      if(this.userInfo.role=="admin"){
+        this.$router.push({path: '/static'})
+      }else if(this.userInfo.role=="teacher"){
+        this.$router.push({path: '/homePage'})
+      }
     },
     pInfor(){
       this.p_dialogVisible = true;
@@ -108,7 +148,42 @@ export default {
       localStorage.removeItem("role");
       localStorage.removeItem("uToken")
       this.$router.push({path:"/login"}) //跳转到登录页面
-    }
+    },
+    cancel(){
+      this.up_dialogVisible = false;
+      this.form = {};
+    },
+    submit(){
+        this.$axios.post("/student/ourMessage",{'studentId':this.userInfo.id}).then(res =>{
+          console.log(res.data);
+          if(res.data.code==200){
+            let password = res.data.data.userPassword;
+            if(this.form.oldPassword!=password){
+              this.$message.error('密码错误');
+            }else if(this.form.newPassword == this.form.oldPassword){
+              this.$message.error('新旧密码重复');
+            }else if(this.form.newPassword==null || this.form.newPassword==""){
+              this.$message.error('请输入新密码');
+            }else if(this.form.newPassword!=this.form.repeatPassword){
+              this.$message.error('两次密码不一致');
+            }else{
+              this.$axios.post('/student/updatePassword',{"userId":this.userInfo.id,"userPassword":this.form.newPassword,"userOldPassword":password}).then(res=>{
+                console.log(res);
+                if(res.data.code==200){
+                  this.$message.success('修改成功');
+                  this.up_dialogVisible = false;
+                  this.form = {};
+                }else{
+                  console.log("error");
+                }
+              })
+            }
+          }else{
+            console.log("error");
+          }
+        })
+    },
+    
   },
 }
 </script>

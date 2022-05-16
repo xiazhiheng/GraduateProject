@@ -1,17 +1,18 @@
 <template>
-  <el-table :data="pagination.data">
-    <el-table-column prop="noticeTitle" label="标题" :show-overflow-tooltip="true"></el-table-column>
-    <el-table-column prop="noticeContent" label="内容" :show-overflow-tooltip="true"></el-table-column>
-    <el-table-column prop="noticeStartTime" label="开始时间"></el-table-column>
-    <el-table-column prop="noticeEndTime" label="结束时间"></el-table-column>
-    <el-table-column width="150" fixed="right">
-      <template v-slot="scope">
-        <el-button @click="n_update(scope.$index)" type="primary" size="small">编辑</el-button>
-        <el-button @click="n_delete(scope.row.noticeId)" type="danger" size="small">删除</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-
+  <div id="all">
+    <el-table :data="pagination.data">
+      <el-table-column prop="noticeTitle" label="标题" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="noticeContent" label="内容" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="noticeStartTime" label="开始时间"></el-table-column>
+      <el-table-column prop="noticeEndTime" label="结束时间"></el-table-column>
+      <el-table-column width="150" fixed="right">
+        <template v-slot="scope">
+          <el-button @click="n_update(scope.$index)" type="primary" size="small">编辑</el-button>
+          <el-button @click="n_delete(scope.row.noticeId)" type="danger" size="small">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
   <el-pagination
     @size-change="handleSizeChange"
     @current-change="handleCurrentChange"
@@ -167,5 +168,7 @@ export default {
 }
 </script>
 <style>
-
+#all{
+  margin: 50px;
+}
 </style>

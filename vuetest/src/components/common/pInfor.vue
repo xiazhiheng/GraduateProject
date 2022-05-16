@@ -1,34 +1,37 @@
 <template>
   <el-button @click="update">编辑资料</el-button>
   <el-descriptions title="User Info">
-    <el-descriptions-item label="用户名">{{form.userName}}</el-descriptions-item>
-    <el-descriptions-item label="签名">{{form.userSignature}}</el-descriptions-item>
+    <el-descriptions-item label="用户名">{{Info.userName}}</el-descriptions-item>
+    <el-descriptions-item label="签名">{{Info.userSignature}}</el-descriptions-item>
     <!-- <el-descriptions-item label="年龄">{{form.userAge}}</el-descriptions-item> -->
-    <el-descriptions-item v-if="form.userSex == 1" label="性别">男</el-descriptions-item>
-    <el-descriptions-item v-else-if="form.userSex == 2" label="性别">女</el-descriptions-item>
-    <el-descriptions-item label="电话">{{form.userPhone}}</el-descriptions-item>
+    <el-descriptions-item v-if="Info.userSex == 1" label="性别">男</el-descriptions-item>
+    <el-descriptions-item v-else-if="Info.userSex == 2" label="性别">女</el-descriptions-item>
+    <el-descriptions-item label="电话">{{Info.userPhone}}</el-descriptions-item>
   </el-descriptions>
 
   <el-dialog
   v-model="dialogVisible"
   :before-close="handleClose">
     <div id="upload">
-      <!-- <el-upload
-      class="upload-demo"
-      drag
-      :action="uploadUrl"
-      :on-success="uploadSuccess">
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
-      </el-upload> -->
-      <el-upload id="Plus"
+      <!-- <el-upload id="Plus"
         class="avatar-uploader"
         :action="url+'/file/uploadImage'"
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
-        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        <i v-else class="el-icon-plus avatar-uploader-icon" id="plus_btn"></i>
+      </el-upload> -->
+      <el-avatar :size="150" :src="form.userImageUrl" class="h-avatar" :fit="none"></el-avatar>
+      <el-upload
+        class="upload-demo"
+        :action="url+'/file/uploadImage'"
+        :on-preview="handlePreview"
+        :show-file-list="false"
+        :on-success="handleAvatarSuccess"
+        :before-upload="beforeAvatarUpload">
+        <el-button size="small" type="primary">更换封面</el-button>
+        <div slot="tip" class="el-upload__tip">只能上传jpg文件，且不超过500kb</div>
       </el-upload>
     </div>
     
@@ -63,8 +66,7 @@ export default {
   data(){
     return{
       dialogVisible:false,
-      imageUrl:null,
-      date:null,
+      Info:{},
       form:{
         userId:null,
         userName:null,
@@ -88,13 +90,14 @@ export default {
       this.$axios.post("/student/ourMessage",{'studentId':this.userInfo.id}).then(res =>{
         console.log(res.data);
         if(res.data.code==200){
-          this.form = res.data.data;
+          this.Info = res.data.data;
         }else{
           console.log("error");
         }
       })
     },
     update(){
+      this.form = JSON.parse(JSON.stringify(this.Info));
       this.dialogVisible = true;
     },
     handleClose(){
@@ -103,9 +106,8 @@ export default {
     handleAvatarSuccess(res, file) {
       if(res.code == 200){
         this.$message.success("上传成功");
-        this.imageUrl = res.data
+        this.form.userImageUrl = res.data
       }
-      localStorage.setItem("img",this.imageUrl);
     },
     beforeAvatarUpload(file) {
       console.log("file",file)
@@ -121,16 +123,26 @@ export default {
       return isJPG && isLt2M;
     },
     submit(){
-      this.form.userImageUrl = this.imageUrl;
-      this.$axios.post('/teacher/updatePersonalInformation',this.form).then(res =>{
-        if(res.data.code == 200){
-          console.log(this.imageUrl);
-          console.log("修改成功")
-          this.dialogVisible = false;
-        }else{
-          console.log("修改失败")
-        }
-      })
+      if(this.form.userName==""){
+        this.$message.error("用户名不能为空");
+      }else{
+        this.$axios.post('/teacher/updatePersonalInformation',this.form).then(res =>{
+          if(res.data.code == 200){
+            console.log(this.imageUrl);
+            console.log("修改成功")
+            this.Info = this.form;
+            localStorage.setItem("cName",this.form.userName);
+            localStorage.setItem("img",this.form.userImageUrl);
+            this.userInfo.name = this.form.userName;
+            this.userInfo.imgUrl = this.form.userImageUrl;
+            this.$store.commit("setUserInfo",this.userInfo);
+            console.log(this.userInfo);
+            this.dialogVisible = false;
+          }else{
+            console.log("修改失败")
+          }
+        })
+      }
     }
   },
 }
@@ -174,5 +186,11 @@ export default {
     width: 178px;
     height: 178px;
     display: block;
+  }
+  #plus_btn{
+    display: flex;
+    align-content: space-around;
+    justify-content: center;
+    align-items: center;
   }
 </style>

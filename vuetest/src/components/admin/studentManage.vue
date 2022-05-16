@@ -59,7 +59,7 @@ export default {
     this.getStudentInfo();
   },
   methods: {
-     s_ban(userId,index){
+    s_ban(userId,index){
       this.$axios.post('/admin/updatePriviledge',{"userId":userId}).then(res => {
         if(res.data.code == 200){
           this.pagination.data[index].userPriviledge = !this.pagination.data[index].userPriviledge;
@@ -79,12 +79,12 @@ export default {
 			})
     },
     search(){
-      this.$axios.post('').then(res =>{
+      this.$axios.post('/student/findUserByIdOrUserName?message='+this.input).then(res =>{
         if(res.data.code==200){
           this.data = res.data.data;
           this.getStudentInfoByPage();
         }else{
-          console.log("error");
+          this.$message.error("未搜索到结果");
         }
       })
     },

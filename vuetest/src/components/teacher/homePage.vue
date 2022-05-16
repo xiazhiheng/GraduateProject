@@ -79,7 +79,6 @@ export default {
     ul {
       display: flex;
       flex-direction: column;
-      width: 200px;
       overflow: hidden;
     }
     li {

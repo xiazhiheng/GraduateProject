@@ -2,12 +2,49 @@
 <template>
   <div class="all">
     <div id="top">
-      <el-input v-model="input" id="search">
-        <template #append>
-          <el-button @click="search"><el-icon><search/></el-icon></el-button>
-        </template>
-      </el-input>
+      <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
+      <el-option
+        v-for="item in subject"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value">
+      </el-option>
+      </el-select>
+      <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
+        <el-option v-if="condition.courseId!=null"
+          v-for="item in subject[condition.courseId-1].children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
+        <el-option
+          label="简单"
+          :value="1">
+        </el-option>
+        <el-option
+          label="中等"
+          :value="2">
+        </el-option>
+        <el-option
+          label="困难"
+          :value="3">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.questionType" clearable @clear="condition.questionType = null">
+        <el-option
+          label="单选"
+          :value="1">
+        </el-option>
+        <el-option
+          label="多选"
+          :value="2">
+        </el-option>
+      </el-select>
+      <el-button @click="search">检索</el-button>
     </div>
+    <!-- 试题列表 -->
     <el-table :data="pagination.data" border id="t_table">
       <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
       <el-table-column prop="subjectName" label="课程" width="125px"></el-table-column>
@@ -141,6 +178,13 @@ export default {
       checkValue:[],
       input:null,
       data:[],
+      condition: {//检索条件
+        courseId:null,
+        chapterId:null,
+        questionDifficulty:null,
+        questionType:null,
+        questionLimition:0,
+      },
       pagination: {
         //分页后的教师信息
         current: 1, //当前页
@@ -223,7 +267,9 @@ export default {
 			});
     },
     search(){
-      this.$axios.post('').then(res =>{
+      this.condition.questionMadeById=this.userInfo.id,
+      this.$axios.post('/admin/findQuestionByRequirements',this.condition).then(res =>{
+        console.log(res);
         if(res.data.code==200){
           this.data = res.data.data;
           this.getQuestionInfoBypage();
@@ -347,6 +393,9 @@ export default {
     },
     k_handleClose(){
       this.k_dialogVisible = false;
+    },
+    courseChange(){
+      this.condition.chapterId = null;
     },
   }
 };

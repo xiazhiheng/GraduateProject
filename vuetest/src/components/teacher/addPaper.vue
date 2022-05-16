@@ -100,7 +100,7 @@
             <el-input v-model="form.testPaperName"></el-input>
           </el-form-item>
           <el-form-item label="时长">
-            <el-input v-model="form.testPaperTime" type="number" placeholder="请输入时长/min"></el-input>
+            <el-input v-model="form.testPaperTime" type="number" placeholder="请输入时长/min" min="1"></el-input>
           </el-form-item>
           <el-form-item label="难度">
             <el-radio v-model="form.testPaperDifficulty" label="1">简单</el-radio>
@@ -180,13 +180,6 @@ export default {
     courseChange(){
       this.condition.chapterId = null;
     },
-    // getPrivateQuestion() {
-    //   // 查询私有试题信息
-    //   this.$axios.post('/teacher/findAllPersonalQuestion',{questionMadeById:this.userId}).then((res)=>{
-    //     this.data = res.data.data;
-    //     this.getQuestionInfoBypage();
-    //   })
-    // },
     getQuestionInfo() {
       // 查询试题信息
       if(this.addFlag==1){

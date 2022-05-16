@@ -21,24 +21,6 @@
           <!--左边题目编号区-->
           <transition name="slider-fade">
             <div class="left" v-if="slider_flag">
-              <!-- <ul class="l-top">
-                <li>
-                  <a href="javascript:;"></a>
-                  <span>当前</span>
-                </li>
-                <li>
-                  <a href="javascript:;"></a>
-                  <span>未答</span>
-                </li>
-                <li>
-                  <a href="javascript:;"></a>
-                  <span>已答</span>
-                </li>
-                <li>
-                  <a href="javascript:;"></a>
-                  <span>标记</span>
-                </li>
-              </ul> -->
               <div class="l-bottom">
                 <div class="item">
                   <p>单选题部分</p>
@@ -79,6 +61,7 @@
           <div class="right">
             <div class="title">
               <el-button @click="() => slider_flag = !slider_flag">题目列表</el-button>
+              <p id="time">{{time}}</p>
               <!-- <p>{{title}}</p> -->
               <!-- <i class="iconfont icon-right auto-right"></i> -->
               <!-- <span>全卷共{{radioNum+checkListNum}}题  <i class="iconfont icon-time"></i>倒计时：<b>{{time}}</b>分钟</span> -->
@@ -121,17 +104,29 @@
             <div class="analysis" v-if="isPractice[type][Index]">
               <ul>
                 <li> <el-tag type="success">正确答案：</el-tag><span class="right">{{paperData.questionList[type][Index].questionAnswer}}</span></li>
-                <li v-if="paperData.questionList[type][Index].knowledge!=null"><el-tag>知识点：<a href="#" @click="play">{{paperData.questionList[type][Index].knowledge}}</a></el-tag></li>
+                <li v-if="paperData.questionList[type][Index].knowledgeId!=null"><el-tag>知识点：<el-button type="text" @click="play">{{paperData.questionList[type][Index].knowledgeContent}}</el-button></el-tag></li>
                 <li><el-tag>题目解析：</el-tag></li>
                 <li>{{paperData.questionList[type][Index].questionAnalysis == null ? '暂无解析': paperData.questionList[type][Index].questionAnalysis}}</li>
               </ul>
             </div>
-
           </div>
         </transition>
       </el-main>
     </el-container>
   </div>
+
+  <el-dialog
+    v-model="k_dialogVisible"
+    width="50%"
+    :before-close="handleClose">
+    <video height="400"
+    width="400"
+    controls
+    autoplay 
+    type="video/mp4"
+    :src="videoUrl">
+    </video>
+  </el-dialog>
 </template>
 
 <script>
@@ -140,6 +135,7 @@ export default {
   data() {
     return {
       load:false,
+      k_dialogVisible:false,
       paperId:this.$route.query.paperId,
       answerScore: 0, //答题总分数
       type:0,
@@ -147,6 +143,7 @@ export default {
       mark_flag:[[],[]],//是否标记标识符
       slider_flag: true, //左侧显示隐藏标识符
       flag: true, //是否未提交
+      time:this.$route.query.time,
 
       isPractice:[[],[]],//是否展示解析
       currentType: [], //当前题型类型  1--单选题  2--多选题 
@@ -157,6 +154,7 @@ export default {
       checkList:[],//保存考生一道多选题的选项
       checkAnswer:[],//保存考生所有多选题的选项
       answer:[[],[]],//
+      studentAnswer:[],
       
 
       // title: "请选择正确的选项",
@@ -219,6 +217,7 @@ export default {
           ]
         ],
       },
+      videoUrl:null,
     }
   },
   computed:mapState(['userInfo']),
@@ -247,9 +246,8 @@ export default {
       }
     },
     getExamData() { //获取当前试卷所有信息
-      let date = new Date()
-      // this.startTime = this.getTime(date)
       this.$axios.post('/studentAnswer/findTestPaperQuestion',{"testPaperId":this.paperId}).then(res => {  //通过paperId获取试题题目信息
+        console.log(res);
         this.paperData.questionList[0] = res.data.data.questionRadioList;
         this.paperData.questionList[1] = res.data.data.questionMultipleList;
         this.radioNum = this.paperData.questionList[0].length;
@@ -270,6 +268,7 @@ export default {
           this.checkList[j] = [];
           this.answer[1][j] = [null,null,null,null];
         }
+        this.showTime();
         this.load = true;
       })
     },
@@ -289,7 +288,7 @@ export default {
       }
     },
     checkChange(val) { //获取选择题作答选项
-      this.checkAnswer[this.Index] = this.checkList[this.Index].join("");
+      this.checkAnswer[this.Index] = this.checkList[this.Index].sort().join("");
       this.bg_flag[this.type][this.Index] = 1;
     },
     previous() { //上一题
@@ -305,32 +304,44 @@ export default {
     },
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
-        this.type = 1;
-        this.Index = 0;
+        if(this.checkListNum==0){
+          this.commitTest();  
+        }else{
+          this.type = 1;
+          this.Index = 0;
+        }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
-        this.commit();
+        this.commitTest();
       }else{
         this.Index++;
       } 
     },
-    // skip(index){//跳转至指定题目
-    //   this.index = index
-    // },
     mark() { //标记功能
       this.mark_flag[this.type][this.Index] = !this.mark_flag[this.type][this.Index];  
     },
-    
     commitTest(){
-      for(let i=0;i<this.radioNum;i++){
-        this.isPractice[0][i] = true;
-        this.judgeAnswer(0,i)
-      }
-      for(let j=0;j<this.checkListNum;j++){
-        this.isPractice[1][j] = true;
-        this.judgeAnswer(1,j)
-      }
-      this.flag = false;
-      this.change(0,0);
+      this.$confirm("考试结束时间未到,是否提前交卷","友情提示",{
+        confirmButtonText: '立即交卷',
+        cancelButtonText: '再检查一下',
+        type: 'warning'
+      }).then(() => {
+        for(let i=0;i<this.radioNum;i++){
+          this.isPractice[0][i] = true;
+          this.judgeAnswer(0,i)
+        }
+        for(let j=0;j<this.checkListNum;j++){
+          this.isPractice[1][j] = true;
+          this.judgeAnswer(1,j)
+        }
+        console.log(this.paperId);
+        this.$axios.post('/studentAnswer/answerTestPaper?questionIds='+this.studentAnswer,{"testPaperId":this.paperId,"userId":this.userInfo.id});
+        this.flag = false;
+        if(this.radioNum==0){
+          this.change(0,1)
+        }else{
+          this.change(0,0)
+        }
+      })
     },
     commit() { //答案提交计算分数
       this.$confirm("考试结束时间未到,是否提前交卷","友情提示",{
@@ -365,7 +376,7 @@ export default {
     judgeAnswer(type,Index){
       let list = type ? this.checkList[Index] : this.radio[Index];
       if(list==null){
-        list =  '';
+        list = '';
       }
       let standardAnswer = [];
       let myAnswer = [];
@@ -401,33 +412,56 @@ export default {
           }
         }
       }
-
+      if(type==0){
+        if(list == this.paperData.questionList[type][Index].questionAnswer){
+          this.studentAnswer.push(this.paperData.questionList[type][Index].questionId);
+        }
+      }else{
+        if(list.join("") == this.paperData.questionList[type][Index].questionAnswer){
+          this.studentAnswer.push(this.paperData.questionList[type][Index].questionId);
+        }
+      }
     },
     exit(){
       this.$router.go(-1);
+    },
+    showTime() { //倒计时
+      setInterval(() => {
+        this.time -= 1
+        if(this.time == 10) {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: '考生注意,考试时间还剩10分钟！！！'
+          })}
+        else if(this.time == 0) {
+          clearInterval(t);
+          this.commitTest();
+        }
+        if(this.flag==false){
+          clearInterval(t);
+        }
+      },1000 * 60)
+    },
+    play(){
+      this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.paperData.questionList[this.type][this.Index].knowledgeId}).then(res=>{
+        console.log("knowledge",res);
+        this.videoUrl = res.data.data.videoUrl;
+        this.k_dialogVisible = true;
+      })
     }
-    // showTime() { //倒计时
-    //   setInterval(() => {
-    //     this.time -= 1
-    //     if(this.time == 10) {
-    //       this.$message({
-    //         showClose: true,
-    //         type: 'error',
-    //         message: '考生注意,考试时间还剩10分钟！！！'
-    //       })}
-    //     if(this.time == 0) {
-    //       console.log("考试时间已到,强制交卷。")
-
-    //       }
-
-    //   },1000 * 60)
-    // }
   },
 }
 </script>
 
 <style lang="scss">
-
+.title{
+  width: 100%;
+}
+#time{
+  color: #000;
+  float: right;
+}
 .iconfont.icon-time {
   color: #2776df;
   margin: 0px 6px 0px 20px;

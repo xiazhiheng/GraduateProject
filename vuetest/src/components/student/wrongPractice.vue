@@ -46,7 +46,8 @@
                     </li>
                   </ul>
                 </div>
-                <div class="final" @click="commit()">结束考试</div>
+                <div v-if="!flag" class="final" @click="commitTest()">结束考试</div>
+                <div v-else class="final" @click="exit()">退出</div>
               </div>
             </div>
           </transition>
@@ -63,7 +64,7 @@
             <div class="content" v-if="type">
               <p class="topic"><span class="number">{{Index+1}}</span>{{paperData.questionList[1][Index].questionContent}}</p>
               <div >
-                <el-checkbox-group v-model="checkList[Index]">
+                <el-checkbox-group v-model="checkList[Index]" @change="checkChange">
                   <el-checkbox :id="answer[1][Index][0]" label="A" class="checkBox" :disabled="bg_flag[type][Index]">A:{{paperData.questionList[1][Index].questionOptionA}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][1]" label="B" class="checkBox" :disabled="bg_flag[type][Index]">B:{{paperData.questionList[1][Index].questionOptionB}}</el-checkbox>
                   <el-checkbox :id="answer[1][Index][2]" label="C" class="checkBox" :disabled="bg_flag[type][Index]">C:{{paperData.questionList[1][Index].questionOptionC}}</el-checkbox>
@@ -87,8 +88,7 @@
             <div class="operation">
               <ul class="end" v-if="bg_flag[type][Index]">
                 <li @click="previous()"><i class="iconfont icon-previous"></i><span>上一题</span></li>
-                <li v-if="collect_flag" @click="collect()"><span>取消</span></li>
-                <li v-else @click="collect()"><span>收藏</span></li>
+                <li @click="collect"><span>收藏</span></li>
                 <li @click="next()"><span>下一题</span><i class="iconfont icon-next"></i></li>
               </ul>
               <ul class="end" v-else>
@@ -167,6 +167,7 @@ export default {
       thumpFlag: [],//是否点赞
       stampFlag:[],//是否点踩
       type:0,//题目种类
+      flag: false,  
 
       input:null,
 
@@ -314,8 +315,12 @@ export default {
     },
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
-        this.type = 1;
-        this.Index = 0;
+        if(this.checkListNum==0){
+          this.commitTest();
+        }else{
+          this.type = 1;
+          this.Index = 0;
+        }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
         this.commitTest();
       }else{
@@ -372,6 +377,12 @@ export default {
         }
       })
     },
+    cancelWrong(){
+      console.log("wrong");
+      this.$axios.post('/studentAnswer/deleteStudentWrongQuestion',{"questionId":this.paperData.questionList[0][this.Index].questionId,"userStudentId":this.userInfo.id}).then(res=>{
+        console.log(res);
+      })
+    },
     submit(){
       let list = this.type ? this.checkList[this.Index] : this.radio[this.Index];
       if(list.length!=0){
@@ -385,12 +396,14 @@ export default {
       if(this.type){
         this.checkAnswer[this.Index] = this.checkList[this.Index].join("");
         if(this.checkAnswer[this.Index] == this.paperData.questionList[1][this.Index].questionAnswer){
+          this.cancelWrong();
           this.next();
         }else{
           this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.paperData.questionList[1][this.Index].questionId})
         }
       }else{
         if(this.radio[this.Index] == this.paperData.questionList[0][this.Index].questionAnswer){
+          this.cancelWrong();
           this.next();
         }else{
           this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.paperData.questionList[0][this.Index].questionId}).then(res =>{
@@ -459,6 +472,7 @@ export default {
       }
     },
     commitTest(){
+      this.flag = true;
       console.log(this.radio);
       console.log(this.checkAnswer);
     },
@@ -496,6 +510,12 @@ export default {
       }).catch(() => {
         console.log("继续答题")
       })
+    },
+    exit(){
+      this.$router.go(-1);
+    },
+    checkChange(val) { 
+      this.checkList[this.Index].sort();
     },
   },
 }

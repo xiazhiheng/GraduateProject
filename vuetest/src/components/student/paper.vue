@@ -12,7 +12,7 @@
           <!-- <p class="name">{{item.paperName}}</p>
           <p class="time">{{item.difficultyName}}</p> -->
           <!-- <p class="time">{{item.paperTime}}min</p> -->
-          <el-button type="text" @click="answer(item.testPaperId)" id="answer">开始答题</el-button>
+          <el-button type="text" @click="answer(item.testPaperId,item.testPaperTime)" id="answer">开始答题</el-button>
           <!-- <div class="info">
             <i class="el-icon-loading"></i><span>{{item.examDate.substr(0,10)}}</span>
             <i class="iconfont icon-icon-time"></i><span v-if="item.totalTime != null">限时{{item.totalTime}}分钟</span>
@@ -20,15 +20,18 @@
           </div> -->
         </li>
       </ul>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="pagination.current"
-        :page-sizes="[6, 10, 20, 40]"
-        :page-size="pagination.size"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total">
-      </el-pagination>
+      <div id="foot">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="pagination.current"
+          :page-sizes="[6, 10, 20, 40]"
+          :page-size="pagination.size"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total">
+        </el-pagination>
+      </div>
+      
     </div>
   </div>
 </template>
@@ -85,8 +88,9 @@ export default {
         this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
       }
     },
-    answer(paperId){
-      this.$router.push({path:"/exam",query:{paperId:paperId}})
+    answer(paperId,time){
+      console.log(time);
+      this.$router.push({path:"/exam",query:{paperId:paperId,time:time},})
     },
     //改变当前记录条数
     handleSizeChange(val) {
@@ -177,11 +181,6 @@ export default {
 }
 .paper * {
   margin: 20px 0;
-}
-#p_wrapper .paper {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
 }
 .top .el-icon-search {
   position: absolute;
@@ -274,8 +273,8 @@ export default {
 }
 .wrapper .paper {
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-start;
 }
 .top .el-icon-search {
   position: absolute;
@@ -325,5 +324,10 @@ export default {
 }
 #myExam .wrapper {
   background-color: #fff;
+}
+#foot{
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 </style>
