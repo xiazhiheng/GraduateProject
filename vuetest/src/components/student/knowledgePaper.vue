@@ -1,6 +1,48 @@
 <!--考生答题界面-->
 <template>
-  <div id="answer" v-if="load">
+  <div v-if="flag">
+    <div id="top">
+      <el-select v-model="condition.courseId"  @change="courseChange">
+      <el-option
+        v-for="item in subject"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value">
+      </el-option>
+      </el-select>
+      <el-select v-model="condition.chapterId">
+        <el-option v-if="condition.courseId!=null"
+          v-for="item in subject[condition.courseId-1].children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button @click="search">检索</el-button>
+    </div>
+    <el-checkbox-group v-model="knowledgeIds">
+      <el-table :data="pagination.data" border id="t_table">
+        <el-table-column width="34px">
+          <template v-slot="scope">
+            <el-checkbox :label="scope.row.knowledgeId" ></el-checkbox>
+          </template>
+        </el-table-column>
+        <el-table-column prop="knowledgeContent" label="标签"></el-table-column>
+      </el-table>
+      <el-button id="create" type="primary" @click="start">开始答题</el-button>
+    </el-checkbox-group>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagination.current"
+      :page-sizes="[6, 10]"
+      :page-size="pagination.size"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="pagination.total"
+      class="page">
+    </el-pagination>
+  </div>
+  <div id="answer" v-else>
     <el-container>
       <!-- 编号区 -->
       <el-aside v-show="slider_flag">
@@ -10,24 +52,12 @@
             <div class="left" v-if="slider_flag">
               <div class="l-bottom">
                 <div class="item">
-                  <p>单选题部分</p>
+                  <p>题号</p>
                   <ul>
-                    <li v-for="(list, index) in paperData.questionList[0]" :key="1">
+                    <li v-for="(list, index) in questionList" :key="1">
                       <a href="javascript:;"
-                        @click="change(index,0)"
-                        :class="{'border': Index == index && type == 0,'bg': bg_flag[0][index]}">
-                        {{index+1}}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="item">
-                  <p>多选题部分</p>
-                  <ul>
-                    <li v-for="(list, index) in this.paperData.questionList[1]" :key="index">
-                      <a href="javascript:;"
-                        @click="change(index,1)"
-                        :class="{'border': Index == index && type == 1,'bg': bg_flag[1][index]}">
+                        @click="change(index)"
+                        :class="{'border': Index == index ,'bg': bg_flag[index]}">
                         {{index+1}}
                       </a>
                     </li>
@@ -48,32 +78,32 @@
               <el-button @click="() => slider_flag = !slider_flag">题目列表</el-button>
             </div>
 
-            <div class="content" v-if="type">
-              <p class="topic"><span class="number">{{Index+1}}</span>{{paperData.questionList[1][Index].questionContent}}</p>
+            <div class="content" v-if="questionList[Index].questionType == 2">
+              <p class="topic"><span class="number">{{Index+1}}</span>{{questionList[Index].questionContent}}</p>
               <div >
-                <el-checkbox-group v-model="checkList[Index]" @change="checkChange">
-                  <el-checkbox :id="answer[1][Index][0]" label="A" class="checkBox" :disabled="bg_flag[type][Index]">A:{{paperData.questionList[1][Index].questionOptionA}}</el-checkbox>
-                  <el-checkbox :id="answer[1][Index][1]" label="B" class="checkBox" :disabled="bg_flag[type][Index]">B:{{paperData.questionList[1][Index].questionOptionB}}</el-checkbox>
-                  <el-checkbox :id="answer[1][Index][2]" label="C" class="checkBox" :disabled="bg_flag[type][Index]">C:{{paperData.questionList[1][Index].questionOptionC}}</el-checkbox>
-                  <el-checkbox :id="answer[1][Index][3]" label="D" class="checkBox" :disabled="bg_flag[type][Index]">D:{{paperData.questionList[1][Index].questionOptionD}}</el-checkbox>
+                <el-checkbox-group v-model="check" @change="checkChange">
+                  <el-checkbox :id="answer[Index][0]" label="A" class="checkBox" :disabled="bg_flag[Index]">A:{{questionList[Index].questionOptionA}}</el-checkbox>
+                  <el-checkbox :id="answer[Index][1]" label="B" class="checkBox" :disabled="bg_flag[Index]">B:{{questionList[Index].questionOptionB}}</el-checkbox>
+                  <el-checkbox :id="answer[Index][2]" label="C" class="checkBox" :disabled="bg_flag[Index]">C:{{questionList[Index].questionOptionC}}</el-checkbox>
+                  <el-checkbox :id="answer[Index][3]" label="D" class="checkBox" :disabled="bg_flag[Index]">D:{{questionList[Index].questionOptionD}}</el-checkbox>
                 </el-checkbox-group>
               </div>
             </div>
 
             <div class="content" v-else>
-              <p class="topic"><span class="number">{{Index+1}}</span>{{paperData.questionList[0][Index].questionContent}}</p>
+              <p class="topic"><span class="number">{{Index+1}}</span>{{questionList[Index].questionContent}}</p>
               <div >
-                <el-radio-group v-model="radio[Index]">
-                  <el-radio  :id="answer[0][Index][0]" label="A" :disabled="bg_flag[type][Index]">A:{{paperData.questionList[0][Index].questionOptionA}}</el-radio>
-                  <el-radio  :id="answer[0][Index][1]" label="B" :disabled="bg_flag[type][Index]">B:{{paperData.questionList[0][Index].questionOptionB}}</el-radio>
-                  <el-radio  :id="answer[0][Index][2]" label="C" :disabled="bg_flag[type][Index]">C:{{paperData.questionList[0][Index].questionOptionC}}</el-radio>
-                  <el-radio  :id="answer[0][Index][3]" label="D" :disabled="bg_flag[type][Index]">D:{{paperData.questionList[0][Index].questionOptionD}}</el-radio>
+                <el-radio-group v-model="radio">
+                  <el-radio  :id="answer[Index][0]" label="A" :disabled="bg_flag[Index]">A:{{questionList[Index].questionOptionA}}</el-radio>
+                  <el-radio  :id="answer[Index][1]" label="B" :disabled="bg_flag[Index]">B:{{questionList[Index].questionOptionB}}</el-radio>
+                  <el-radio  :id="answer[Index][2]" label="C" :disabled="bg_flag[Index]">C:{{questionList[Index].questionOptionC}}</el-radio>
+                  <el-radio  :id="answer[Index][3]" label="D" :disabled="bg_flag[Index]">D:{{questionList[Index].questionOptionD}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
 
             <div class="operation">
-              <ul class="end" v-if="bg_flag[type][Index]">
+              <ul class="end" v-if="bg_flag[Index]">
                 <li @click="previous()"><i class="iconfont icon-previous"></i><span>上一题</span></li>
                 <li v-if="collect_flag" @click="collect()"><span>取消</span></li>
                 <li v-else @click="collect()"><span>收藏</span></li>
@@ -84,12 +114,12 @@
               </ul>
             </div>
 
-            <div class="analysis" v-show="isPractice[type][Index]">
+            <div class="analysis" v-show="isPractice[Index]">
               <ul>
-                <li> <el-tag type="success">正确答案：</el-tag><span class="right">{{paperData.questionList[type][Index].questionAnswer}}</span></li>
-                <li v-if="paperData.questionList[type][Index].knowledgeId!=null"><el-tag>知识点：<el-button type="text" @click="play">{{paperData.questionList[type][Index].knowledgeContent}}</el-button></el-tag></li>
+                <li> <el-tag type="success">正确答案：</el-tag><span class="right">{{questionList[Index].questionAnswer}}</span></li>
+                <li v-if="questionList[Index].knowledgeId!=null"><el-tag>知识点：<el-button type="text" @click="play">{{questionList[Index].knowledgeContent}}</el-button></el-tag></li>
                 <li><el-tag>题目解析：</el-tag></li>
-                <li>{{paperData.questionList[0][Index].questionAnalysis == null ? '暂无解析': paperData.questionList[type][Index].questionAnalysis}}</li>
+                <li>{{questionList[Index].questionAnalysis == null ? '暂无解析': questionList[Index].questionAnalysis}}</li>
               </ul>
               <div v-if="!commentFlag" id="pinglun">
                 <el-button  @click="displayComment" type="text">评论</el-button>
@@ -97,9 +127,6 @@
               
               <div v-else class="comments">
                 <div class="comment-wrap">
-                    <!-- <div class="photo">
-                        <div class="avatar" style="background-image: url('#')"></div>
-                    </div> -->
                     <div class="comment-block">
                         <form>
                           <el-input type="textarea" autosize maxlength="30" show-word-limit v-model="input"></el-input>
@@ -158,211 +185,129 @@ import {mapState} from 'vuex'
 export default {
   data() {
     return {
+      flag:true,
+      knowledgeIds:[],
+      condition:{
+        courseId:null,
+        chapterId:null,
+      },
+      pagination: {
+        //分页后的教师信息
+        current: 1, //当前页
+        total: null, //记录条数
+        size: 6, //每页条数
+        data:[]
+      },
+      knowledgeList:[],
+
       load:false,
       k_dialogVisible:false,
       videoUrl:null,
-      paperId:this.$route.query.paperId,
-      isFrist:Number(this.$route.query.isFrist),
-      bg_flag: [[],[]], //已答标识符,已答改变背景色
+      bg_flag: [], //已答标识符,已答改变背景色
       slider_flag: true, //左侧显示隐藏标识符
-      isPractice:[[],[]],//是否展示解析
+      isPractice:[],//是否展示解析
       commentFlag:false,//是否展示评论
       thumpFlag: [],//是否点赞
       stampFlag:[],//是否点踩
       type:0,//题目种类
       k_dialogVisible:false,
       videoUrl:null,
-
       input:null,
-
-      radioNum:0,
-      checkListNum:0,
       radio: [], //保存考生所有单选题的选项
-      checkList:[],//保存考生所有多选题的选项(字符数组形式)
-      checkAnswer:[],//保存考生所有多选题的选项(字符串形式)
-      answer:[[],[]],//每道题每个选项的对错
-      studentQuestionAnswer:[],//学生的做题记录
-
+      check: [],//保存考生多选题的选项
+      answer:[],//每道题每个选项的对错
       Index: 0, //全局index
-      paperData: { //考试信息
-        questionList:[[],[]],
-      },
-      comments:[
-        // {
-        //   commentId:null,
-        //   userId:null,
-        //   url:null,
-        //   content:"这是一条评论",
-        // }
-      ],
-
+      questionList:[],
+      comments:[],
     }
   },
-  computed:mapState(['userInfo']),
+  computed:mapState(['userInfo','subject']),
   created() {
-    // this.test();
-    this.getExamData()
-    // this.showTime()
+    // this.search();
   },
   
   methods: {
-    test(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-      }
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-      }
-    },
-    getExamData() { //获取当前试卷所有信息
-      // let date = new Date()
-      // this.startTime = this.getTime(date)
-      if(!this.isFrist){
-        this.$axios.post('/studentAnswer/answerPublicQuestionAgain?studentId='+this.userInfo.id+"&chapterId="+this.paperId).then(res=>{
+    search(){
+      if(this.condition.courseId!=null && this.condition.chapterId!=null){
+        this.$axios.post('/admin/findKnowledgeByChapterIdAndCourseId',{"courseId":this.condition.courseId,"chapterId":this.condition.chapterId}).then(res => {
           console.log(res.data);
           if(res.data.code==200){
-            for(let i=0;i<res.data.data.questionRadioList.length;i++){
-              this.paperData.questionList[0][i] = res.data.data.questionRadioList[i].question;
-              this.studentQuestionAnswer[i] = {};
-              this.studentQuestionAnswer[i].questionId = res.data.data.questionRadioList[i].question.questionId
-              this.studentQuestionAnswer[i].studentAnswer = res.data.data.questionRadioList[i].studentAnswer;
-            }
-            let n = res.data.data.questionRadioList.length;
-            for(let j=0;j<res.data.data.questionMultipleList.length;j++){
-              this.paperData.questionList[1][j] = res.data.data.questionMultipleList[j].question;
-              this.studentQuestionAnswer[n+j] = {};
-              this.studentQuestionAnswer[n+j].questionId = res.data.data.questionMultipleList[j].question.questionId;
-              this.studentQuestionAnswer[n+j].studentAnswer = res.data.data.questionMultipleList[j].studentAnswer;
-            }
-            console.log(this.studentQuestionAnswer);
-            this.initpaper();
+            this.knowledgeList = res.data.data;
+            this.getKnowledgeInfoByPage();    
           }else{
             console.log("error");
           }
         })
       }
-      else{
-        console.log("test2")
-        this.$axios.post('/studentAnswer/findPublicQuestion',{"chapterId":this.paperId}).then(res => {  //通过paperId获取试题题目信息
-          console.log(res.data);
-          if(res.data.code == 200){
-            this.paperData.questionList[0] = res.data.data.questionRadioList;
-            this.paperData.questionList[1] = res.data.data.questionMultipleList;
-            this.initpaper();
+      this.$axios.post('')
+    },
+    getKnowledgeInfoByPage(){
+      this.pagination.data = this.knowledgeList.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
+    },
+    courseChange(){
+      this.condition.chapterId = null;
+    },
+    start(){
+      if(this.knowledgeIds==0){
+        this.$message.error("请选择知识点");
+      }else{
+        this.$axios.post('/studentAnswer/findQuestionsByKnowledgeIds',this.knowledgeIds).then(res=>{
+        console.log(res);
+        if(res.data.code==200){
+          this.questionList = res.data.data;
+          if(this.questionList.length==0){
+            this.$message.error("所选知识点未匹配试题");
           }else{
-            console.log("error");
+            this.initpaper();
+            this.flag = false;
           }
-        })
+        }
+      })
       }
     },
     initpaper(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-        // this.studentQuestionAnswer[i] = {};
+      for(let i=0;i<this.questionList.length;i++){
+        this.bg_flag[i] = 0;
+        this.isPractice[i] = 0;
+        this.answer[i] = [null,null,null,null];
       }
-      let n =this.paperData.questionList[0].length;
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-        // this.studentQuestionAnswer[n+j] = {};
-      }
-      if(!this.isFrist){
-        for(let i=0;i<this.radioNum;i++){
-          this.radio[i] = this.studentQuestionAnswer[i].studentAnswer;
-          if(this.studentQuestionAnswer[i].studentAnswer!=null){
-            this.type = 0;
-            this.Index = i;
-            this.judgeAnswer();
-          }
-        }
-        for(let j=0;j<this.checkListNum;j++){
-          if(this.studentQuestionAnswer[this.radioNum+j].studentAnswer!=null){
-            this.checkList[j] = this.studentQuestionAnswer[this.radioNum+j].studentAnswer.split("");
-            this.type = 1;
-            this.Index = j;
-            this.judgeAnswer();
-          }
-        }
-      }else{
-        for(let i=0;i<this.radioNum;i++){
-          this.studentQuestionAnswer[i] = {};
-          this.studentQuestionAnswer[i].questionId = this.paperData.questionList[0][i].questionId;
-        }
-        for(let j=0;j<this.checkListNum;j++){
-          this.studentQuestionAnswer[this.radioNum+j] = {};
-          this.studentQuestionAnswer[this.radioNum+j].questionId = this.paperData.questionList[1][j].questionId;
-        }
-      }
-      this.load = true;
     },
-    change(index,type){
+    change(index){
       this.Index = index;
-      this.type = type;
       this.commentFlag == false;
       this.thumpFlag = [];
       this.stampFlag = [];
     },
     previous() { //上一题
-      if(this.Index == 0){
-        if(this.type==1){
-          this.Index = this.radioNum-1;
-          this.type = 0;
-        }
-      }else{
+      if(this.Index !=0){
         this.Index--;
+        this.commentFlag == false;
+        this.thumpFlag = [];
+        this.stampFlag = [];
       }
-      this.commentFlag == false;
-      this.thumpFlag = [];
-      this.stampFlag = [];
     },
     next() { //下一题
-      if(this.Index == (this.radioNum-1) && this.type == 0){
-        if(this.checkListNum==0){
-          this.commit();  
-        }else{
-          this.type = 1;
-          this.Index = 0;
-        }
-      }else if(this.Index == this.checkListNum-1 && this.type == 1){
-        this.commit();
-      }else{
+      if(this.Index!=this.questionList.length-1){
         this.Index++;
-      } 
-      this.commentFlag == false;
-      this.thumpFlag = [];
-      this.stampFlag = [];
+        this.commentFlag == false;
+        this.thumpFlag = [];
+        this.stampFlag = [];
+      }else{
+        this.commit();
+      }
     },
     judgeAnswer(){
-      this.bg_flag[this.type][this.Index] = 1;
-      this.isPractice[this.type][this.Index] = 1;
-      let list = this.type ? this.checkList[this.Index] : this.radio[this.Index];
+      this.bg_flag[this.Index] = 1;
+      this.isPractice[this.Index] = 1;
+      let list = this.questionList[this.Index].questionType==2 ? this.checkList : this.radio;
       let standardAnswer = [];
       let myAnswer = [];
       let c = ['A','B','C','D']
       //j为标准答案的index,k为我的答案的index
       for(let i=0,j=0,k=0;i<4;i++){
-        if(this.paperData.questionList[this.type][this.Index].questionAnswer.length<=j){
+        if(this.questionList[this.Index].questionAnswer.length<=j){
           standardAnswer[i] = 0;
-        }else if(this.paperData.questionList[this.type][this.Index].questionAnswer[j] == c[i]){
+        }else if(this.questionList[this.Index].questionAnswer[j] == c[i]){
           standardAnswer[i] = 1;
           j++;
         }else{
@@ -376,62 +321,65 @@ export default {
         }else{
           myAnswer[i] = 0;
         }
-
         if(standardAnswer[i] == 1){
           if(myAnswer[i] == 1){
-            this.answer[this.type][this.Index][i] = 'correct';
+            this.answer[this.Index][i] = 'correct';
           }else{
-            this.answer[this.type][this.Index][i] = 'lack'
+            this.answer[this.Index][i] = 'lack'
           }
         }else{
           if(myAnswer[i] == 1){
-            this.answer[this.type][this.Index][i] = 'false';
+            this.answer[this.Index][i] = 'false';
           }
         }
       }
+      console.log(this.answer);
     },
     collect() {
-      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[0][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.questionList[this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+        console.log(res.data);
         if(res.data.code == 200){
            this.$message({
             message: '收藏成功',
             type: 'success'
           })
-        }else{
-          console.log("error");
+        }else if(res.data.code==502){
+          this.$message({
+            message: res.data.message,
+            type: 'error'
+          })
         }
       })
     },
     submit(){
-      let list = this.type ? this.checkList[this.Index] : this.radio[this.Index];
+      let list = this.questionList[this.Index].questionType==2 ? this.check : this.radio;
+      console.log(list);
       if(list.length!=0){
         this.judgeAnswer();
-        if(this.type){
-          this.checkAnswer[this.Index] = this.checkList[this.Index].join("");
-          this.studentQuestionAnswer[this.radioNum+this.Index].studentAnswer = this.checkAnswer[this.Index];
-          if(this.checkAnswer[this.Index] == this.paperData.questionList[1][this.Index].questionAnswer){
+        if(this.questionList[this.Index].questionType==2){
+          if(this.check.join("") == this.questionList[this.Index].questionAnswer){
             this.next();
           }else{
-            this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.paperData.questionList[1][this.Index].questionId})
+            this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.questionList[this.Index].questionId})
           }
         }else{
-          this.studentQuestionAnswer[this.Index].studentAnswer = this.radio[this.Index];
-          if(this.radio[this.Index] == this.paperData.questionList[0][this.Index].questionAnswer){
+          if(this.radio == this.questionList[this.Index].questionAnswer){
             this.next();
           }else{
-            this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.paperData.questionList[0][this.Index].questionId}).then(res =>{
+            this.$axios.post('/studentAnswer/addWrongQuestion',{"userStudentId":this.userInfo.id,"questionId":this.questionList[this.Index].questionId}).then(res =>{
               console.log(res.data.code);
             })
           }
         }
+        this.check = [];
+        this.radio = [];
       }else{
-        console.log("请选择试题")
+        console.log("请选择答案")
       }
-      console.log("submit",this.studentQuestionAnswer);
     },
     displayComment(){
       console.log("comment");
-      this.$axios.post('/studentAnswer/showComment?questionId='+this.paperData.questionList[this.type][this.Index].questionId).then(res=>{
+      this.$axios.post('/studentAnswer/showComment?questionId='+this.questionList[this.Index].questionId).then(res=>{
         if(res.data.code == 200){
           this.comments = res.data.data;
           console.log(this.comments);
@@ -465,7 +413,7 @@ export default {
       console.log("comment");
       if(this.input != null && this.input !=''){
         this.$axios.post('/studentAnswer/addComment',
-        {"questionId":this.paperData.questionList[this.type][this.Index].questionId,
+        {"questionId":this.questionList[this.Index].questionId,
         "userId":this.userInfo.id,
         "commentContent":this.input}).then(res =>{
           if(res.data.code==200){
@@ -473,7 +421,7 @@ export default {
               message: '评论成功',
               type: 'success'
             })
-            this.$axios.post('/studentAnswer/showComment?questionId='+this.paperData.questionList[this.type][this.Index].questionId).then(res=>{
+            this.$axios.post('/studentAnswer/showComment?questionId='+this.questionList[this.Index].questionId).then(res=>{
               console.log(res.data);
               if(res.data.code == 200){
                 this.comments = res.data.data;
@@ -496,45 +444,35 @@ export default {
       }).then(() => {
         console.log("交卷")
         //提交成绩信息
-        this.$router.go(-1);
-        // this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
-        // this.$axios.post("/studentAnswer/answerPublicQuestion/?userId="+this.userInfo.id+"&chapterId="+this.paperId,this.studentQuestionAnswer).then(res => {
-        //   console.log("res",res.data);
-        //   if(res.data.code == 200) {
-        //     console.log("上传成功")
-        //   }else{
-        //     console.log("上传失败")
-        //   }
-        // })
+        this.flag = true;
       }).catch(() => {
         console.log("继续答题")
       })
     },
     checkChange(val) { 
-      this.checkList[this.Index].sort();
+      this.checkL.sort();
     },
     play(){
-      this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.paperData.questionList[this.type][this.Index].knowledgeId}).then(res=>{
+      this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.questionList[this.Index].knowledgeId}).then(res=>{
         console.log("knowledge",res);
         this.videoUrl = res.data.data.videoUrl;
         this.k_dialogVisible = true;
       })
-    }
+    },
   },
-  beforeRouteLeave(){
-    this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
-    this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&chapterId="+this.paperId,this.studentQuestionAnswer).then(res => {
-      console.log("res",res.data);
-      if(res.data.code == 200) {
-        console.log("上传成功")
-      }else{
-        console.log("上传失败")
-      }
-    })
-  }
+  // beforeRouteLeave(){
+  //   this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
+  //   this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&chapterId="+this.paperId,this.studentQuestionAnswer).then(res => {
+  //     console.log("res",res.data);
+  //     if(res.data.code == 200) {
+  //       console.log("上传成功")
+  //     }else{
+  //       console.log("上传失败")
+  //     }
+  //   })
+  // }
 }
 </script>
-
 <style lang="scss">
 .iconfont.icon-time {
   color: #2776df;
@@ -715,13 +653,14 @@ export default {
 .l-bottom .item {
   display: flex;
   flex-direction: column;
+  margin-right: 0px;
 }
 .l-bottom .item ul {
   width: 100%;
   margin-bottom: -8px;
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: flex-start;
 }
 .l-bottom .item ul li a {
   position: relative;

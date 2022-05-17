@@ -11,10 +11,12 @@
       :collapse="flag"
       background-color="#0f6fed"  
       menu-trigger="click" router>
-      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index" class="open">
+      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index" :class="{'open': flag == false}">
         <template v-slot:title>
           <div class="left-width">
-            <el-icon class="iconfont"><search/></el-icon>
+            <el-icon class="iconfont" >
+              <component :is="item.icon"/>
+            </el-icon>
             <span  class="title">{{item.title}}</span>
           </div>
         </template>
@@ -95,5 +97,8 @@ export default {
 }
 .el-submenu__title i {
     color: #3d3deb !important;
+}
+.open{
+  width:227px;
 }
 </style>

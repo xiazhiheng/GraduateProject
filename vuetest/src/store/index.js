@@ -16,7 +16,7 @@ export const store = createStore({
         {
           index: '1',
           title: '试题管理',
-          icon: 'icon-tiku',
+          icon: 'search',
           content:[{item:'试题管理',path:'/a_questionManage'},{item:'添加试题',path:'/a_addQuestion'},],
         },
         // {
@@ -28,37 +28,37 @@ export const store = createStore({
         {
           index: '3',
           title: '新闻管理',
-          icon: 'icon-tiku',
+          icon: 'search',
           content:[{item:'新闻管理',path:'newsManage'}],
         },
         {
           index: '4',
           title: '学生管理',
-          icon: 'icon-role',
+          icon: 'search',
           content:[{item:'学生管理',path:'/a_studentManage'}],
         },
         {
           index: '5',
           title: '教师管理',
-          icon: 'icon-Userselect',
+          icon: 'search',
           content:[{item:'教师管理',path:'/a_teacherManage'},{item: '添加教师',path: '/a_addTeacher'}],
         },
         {
           index: '6',
           title: '审核管理',
-          icon: 'icon-Userselect',
+          icon: 'search',
           content:[{item:'视频审核',path:'a_knowledge'},{item: '评论审核',path: 'commentCheck'}],
         },
         {
           index: '7',
           title: '公告管理',
-          icon: 'icon-Userselect',
+          icon: 'search',
           content:[{item:'公告管理',path:'/noticeManage'},{item: '发布公告',path: '/addNotice'}],
         },
         {
           index: '8',
           title: '知识点管理',
-          icon: 'icon-Userselect',
+          icon: 'search',
           content:[{item:'知识点管理',path:'/a_knowledgeManage'},{item: '添加知识点',path: '/a_addKnowledge'}],
         }
       ],
@@ -66,25 +66,25 @@ export const store = createStore({
         {
           index: '1',
           title: '试题管理',
-          icon: '<plus/>',
+          icon: 'search',
           content:[{item:'试题管理',path:'/t_questionManage'},{item:'添加试题',path:'/t_addQuestion'},],
         },
         {
           index: '2',
           title: '试卷管理',
-          icon: '<Search/>',
+          icon: 'search',
           content:[{item:'试卷管理',path:'/t_paperManage'},{item:'添加试卷',path:'/t_addPaper'},],
         },
         {
           index: '3',
           title: '知识点管理',
-          icon: '',
+          icon: 'search',
           content:[{item:'知识点管理',path:'/t_knowledge'},{item:'添加知识点',path:'/addKnowledge'},],
         },
         {
           index: '4',
           title: '统计',
-          icon: '',
+          icon: 'search',
           content:[{item:'做题情况',path:'/paperStatistics'}],
         },
       ],

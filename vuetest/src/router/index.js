@@ -57,6 +57,10 @@ const routes = [
         path:'/competition',
         component: () => import('@/components/student/competition')
       },
+      {
+        path:'/knowledgePaper',
+        component: () => import('@/components/student/knowledgePaper')
+      },
     ]
   },
   {

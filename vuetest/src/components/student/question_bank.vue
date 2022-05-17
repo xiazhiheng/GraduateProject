@@ -44,7 +44,7 @@ export default {
           console.log("test",res);
           if(res.data.code==200){
             console.log(res.data.data)
-            for(let i=0;i<res.data.data;i++){
+            for(let i=0;i<res.data.data.length;i++){
               let n = this.list.findIndex(item=>item.value == res.data.data[i])
               this.answerFlag[n] = true;    
             }

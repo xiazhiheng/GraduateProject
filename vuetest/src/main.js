@@ -10,7 +10,7 @@ import './assets/css/styles.css'
 import vuex from 'vuex';
 import axios from 'axios'
 import cookie from './plugins/cookie';
-import {Search,Plus} from '@element-plus/icons-vue'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 
 const app = createApp(App)
@@ -44,7 +44,6 @@ axios.interceptors.response.use(result=>{
 },error => {
   Promise.reject(error);
 });
-app
-  .component('search',Search)
-  .component('plus',Plus)
-
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}

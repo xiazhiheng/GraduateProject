@@ -242,7 +242,6 @@ export default {
       })
     },
     getKnowledgeInfoByPage(){
-      console.log("1");
       this.k_pagination.data = this.knowledgeList.slice((this.k_pagination.current-1)*this.k_pagination.size,this.k_pagination.current*this.k_pagination.size);
       for(let i=0;i<this.k_pagination.data.length;i++){
         this.k_pagination.data[i].subjectName = this.subject[this.k_pagination.data[i].courseId-1].label;
