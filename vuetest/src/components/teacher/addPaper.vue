@@ -1,57 +1,58 @@
 <template>
   <div class="all"> 
-    <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
-      <el-option
-        v-for="item in subject"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value">
-      </el-option>
-    </el-select>
-    <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
-      <el-option v-if="condition.courseId!=null"
-        v-for="item in subject[condition.courseId-1].children"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value">
-      </el-option>
-    </el-select>
-    <el-select v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
-      <el-option
-        label="简单"
-        :value="1">
-      </el-option>
-      <el-option
-        label="中等"
-        :value="2">
-      </el-option>
-      <el-option
-        label="困难"
-        :value="3">
-      </el-option>
-    </el-select>
-    <el-select v-model="condition.questionType" clearable @clear="condition.questionType = null">
-      <el-option
-        label="单选"
-        :value="1">
-      </el-option>
-      <el-option
-        label="多选"
-        :value="2">
-      </el-option>
-    </el-select>
-    <el-select v-model="condition.questionLimition">
-      <el-option
-        label="私人题库"
-        :value="0">
-      </el-option>
-      <el-option
-        label="公共题库"
-        :value="1">
-      </el-option>
-    </el-select>
-    <el-button @click="search">检索</el-button>
-    
+    <div id="q_top">
+      <el-select v-model="condition.courseId" placeholder="课程" clearable @change="courseChange" @clear="condition.courseId = null">
+        <el-option
+          v-for="item in subject"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.chapterId" placeholder="章节" clearable @clear="condition.chapterId = null">
+        <el-option v-if="condition.courseId!=null"
+          v-for="item in subject[condition.courseId-1].children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.questionDifficulty" placeholder="难度" clearable @clear="condition.questionDifficulty = null"  style="width:120px">
+        <el-option
+          label="简单"
+          :value="1">
+        </el-option>
+        <el-option
+          label="中等"
+          :value="2">
+        </el-option>
+        <el-option
+          label="困难"
+          :value="3">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.questionType" placeholder="类型" clearable @clear="condition.questionType = null"  style="width:120px">
+        <el-option
+          label="单选"
+          :value="1">
+        </el-option>
+        <el-option
+          label="多选"
+          :value="2">
+        </el-option>
+      </el-select>
+      <el-select v-model="condition.questionLimition"  style="width:120px">
+        <el-option
+          label="私人题库"
+          :value="0">
+        </el-option>
+        <el-option
+          label="公共题库"
+          :value="1">
+        </el-option>
+      </el-select>
+      <el-button @click="search">检索</el-button>
+    </div>
     <el-checkbox-group v-model="checkList">
       <el-table :data="pagination.data" border id="t_table">
         <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
@@ -326,7 +327,13 @@ export default {
         })
       }else if(this.form.testPaperTime == null || this.form.testPaperTime == ""){
         this.$message({
-          message: '考试时间不能为空',
+          message: '时间不能为空',
+          type: 'error'
+        })
+      }
+      else if(this.form.testPaperTime<=0){
+        this.$message({
+          message: '时间小于或等于0',
           type: 'error'
         })
       }
@@ -404,6 +411,16 @@ export default {
   text-align: left;
   p{
     font-weight:normal;
+  }
+}
+#q_top{
+  display: flex;
+  flex-wrap: wrap;
+  .el-select,.el-button{
+    margin: 5px;
+  }
+  .el-select .el-input{
+    width: 100%;
   }
 }
 </style>

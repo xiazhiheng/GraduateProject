@@ -97,6 +97,9 @@ export default {
 .el-submenu {
   border-bottom: 1px solid #eeeeee0f !important;
 }
+.el-submenu__title{
+  display: flex;
+}
 .el-submenu__title:hover {
   background-color: rgb(72, 66, 95);
 }

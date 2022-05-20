@@ -1,23 +1,7 @@
 <template>
   <div class="all">
     <div id="top">
-      <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
-      <el-option
-        v-for="item in subject"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value">
-      </el-option>
-      </el-select>
-      <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
-        <el-option v-if="condition.courseId!=null"
-          v-for="item in subject[condition.courseId-1].children"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
-        </el-option>
-      </el-select>
-      <el-button @click="search">检索</el-button>
+      <el-cascader v-model="value" :options="subject" @change="handleChange"></el-cascader>
     </div>
     <el-table :data="pagination.data" border id="k_table">
       <el-table-column prop="subjectName" label="课程"></el-table-column>
@@ -96,10 +80,6 @@ export default{
       value:[],
       input:null,
       data:[],
-      condition:{
-        courseId:null,
-        chapterId:null,
-      },
       pagination: {
         //分页后的教师信息
         current: 1, //当前页
@@ -128,14 +108,23 @@ export default{
         }
       })
     },
-    search(){
-      this.$axios.post('admin/findKnowledgeByChapterIdAndCourseId',).then(res =>{
-        if(res.data.code==200){
-          this.data = res.data.data;
-          this.getPageInfo();
+    handleChange(){
+      let condition = {};
+      condition.courseId = this.value[0];
+      condition.chapterId = this.value[1];
+      condition.knowledgeMadeById = this.userInfo.id;
+      this.$axios.post('/admin/findKnowledgeRequirements',condition).then(res => {
+      if(res.data.code == 200){
+        if(res.data.data.length==0){
+          this.$message.error("未查询到结果");
         }else{
-          console.log("error");
+          this.data = res.data.data
+          this.getPageInfo();
         }
+      }
+      else{
+        console.log("error");
+      }
       })
     },
     getPageInfo(){

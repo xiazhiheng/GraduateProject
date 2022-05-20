@@ -380,6 +380,8 @@ export default {
             message: '收藏成功',
             type: 'success'
           })
+        }else{
+          this.$message.error(res.data.message);
         }
       })
     },

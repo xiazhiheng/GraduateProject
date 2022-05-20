@@ -3,19 +3,20 @@
     <el-aside width="200px" id="message_aside">
       <el-container>
         <el-header>
-          <el-input placeholder="请输入内容" v-model="searchInput">
+          <!-- <el-input placeholder="请输入内容" v-model="searchInput">
             <template #append>
               <el-button @click="search"><el-icon><search/></el-icon></el-button>
             </template>
-          </el-input>
+          </el-input> -->
+          <h1>好友列表</h1>
         </el-header>
-        <li @click="select(searchIndex)" v-if="searchIndex!=null">
+        <!-- <li @click="select(searchIndex)" v-if="searchIndex!=null">
           <p>搜索结果：</p>
           <el-avatar :size="30" :src="friends[searchIndex].userImageUrl" class="h-avatar" ></el-avatar>
           <p>{{friends[searchIndex].userName}}</p>
           <p v-if="onlineFlag[searchIndex]">       在线</p>
           <p v-else>       离线</p>
-        </li>
+        </li> -->
         <el-main>
           <el-scrollbar>
              <ul>
@@ -35,12 +36,12 @@
       </el-container>    
     </el-aside>
     <el-main id="message_main" width="600px">
-      <el-container v-if="Index!=null">
-        <el-header>
-           <h>{{friends[Index].userName}}</h>
+      <el-container v-if="Index!=null" id="mess">
+        <el-header id="messagehead">
+           <h1>{{friends[Index].userName}}</h1>
         </el-header>
         <el-main>
-          <el-scrollbar ref="myScrollbar" height="200px">
+          <el-scrollbar ref="myScrollbar" height="300px">
             <div id="historyBtn_div">
               <button @click="getAllMessage">查看历史消息</button>
             </div>
@@ -119,9 +120,8 @@ export default{
     },
     async findAgreeTeacher(){
       this.$axios.post('/student/findAgreeTeacher',{"studentId":this.userInfo.id}).then(res =>{
-        console.log(res.data);
+        console.log("teacher",res.data);
         if(res.data.code==200){
-          // this.friends.push(...res,data.data);
           this.friends = res.data.data
           this.findOurFriends();
         }else{
@@ -131,7 +131,7 @@ export default{
     },
     async findOurFriends(){
       this.$axios.post('/student/findOurFriends?userId='+this.userInfo.id).then(res =>{
-        console.log(res.data)
+        console.log("friend",res.data)
         if(res.data.code==200){
           this.friends.push(...res.data.data);
           this.initFrinends();
@@ -223,8 +223,8 @@ export default{
       console.log(m);
       //接收好友列表
       if(!m.isSystem && !m.isOnline && m.isCreateChat){
+        console.log(m.message);
         for(let i=0;i<m.message.length;i++){
-          console.log(m.message[i]);
           let n = this.friends.findIndex(item => item.userId==m.message[i]); 
           if(n!=-1){
             this.onlineFlag[n] = true;
@@ -318,14 +318,18 @@ export default{
   width: 600px;
   padding: 0;
 }
+#mess{
+  display: flex;
+}
 #message_main .el-header{
-  height: 45px;
+ 
 }
 #message_main .el-main{
   overflow: auto;
   padding: 0px;
 }
 #sendButton{
+  margin: 5px;
   float: right;
 }
 #message_p{
@@ -349,6 +353,7 @@ export default{
   align-items: center;
   text-align: right;
   p{
+    margin-right: 10px;
     max-width: 200px;
   }
 }
@@ -362,6 +367,7 @@ export default{
   }
 }
 #m_foot{
+  display: flex;
   border: 5px;
 }
 .scrollbar-demo-item {
@@ -383,5 +389,8 @@ export default{
   display: flex;
   text-align: center;
   justify-content: center;
+}
+#messagehead{
+  height: 100%;
 }
 </style>

@@ -64,7 +64,7 @@ export default {
       this.$axios.post('/admin/addnews').then(res =>{
         console.log(res.data);
         if(res.data.code == 200){
-          console.log("添加成功")
+          this.$message.success("添加成功");
           this.getNewsInfo();
         }else{
           console.log("error");

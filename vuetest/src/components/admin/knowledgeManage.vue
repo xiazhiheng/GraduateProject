@@ -1,9 +1,7 @@
 <template>
   <div class="all">
-     <div id="top">
-      <el-form-item label="章节">
-        <el-cascader v-model="value" :options="subject" @change="handleChange"></el-cascader>
-      </el-form-item>
+    <div id="top">
+      <el-cascader v-model="value" :options="subject" @change="handleChange" clearable></el-cascader>
     </div>
     <el-table :data="pagination.data" border id="k_table">
       <el-table-column prop="subjectName" label="课程"></el-table-column>
@@ -102,7 +100,8 @@ export default{
   },
   methods:{
     getKnowledgeInfo(){
-      this.$axios.post('/admin/findAllKnowledge').then(res => {
+      console.log("test");
+      this.$axios.post('/admin/findAllPassKnowledge').then(res => {
         if(res.data.code == 200){
           console.log(res.data.data);
           this.data = res.data.data
@@ -114,6 +113,29 @@ export default{
       })
     },
     handleChange(){
+      let condition = {};
+      console.log("value",this.value);
+      if(this.value!=null){
+        condition.courseId = this.value[0];
+        condition.chapterId = this.value[1];
+        this.$axios.post('/admin/findKnowledgeRequirements',condition).then(res => {
+          if(res.data.code == 200){
+            if(res.data.data.length==0){
+              this.$message.error("未查询到结果");
+            }else{
+              this.data = res.data.data
+              this.getPageInfo();
+            }
+          }
+          else{
+            console.log("error");
+          }
+        })
+      }else{
+        this.getKnowledgeInfo();
+      }
+    },
+    search(){
       this.$axios.post('').then(res =>{
         if(res.data.code==200){
           this.data = res.data.data;
@@ -123,16 +145,6 @@ export default{
         }
       })
     },
-    // search(){
-    //   this.$axios.post('').then(res =>{
-    //     if(res.data.code==200){
-    //       this.data = res.data.data;
-    //       this.getPageInfo();
-    //     }else{
-    //       console.log("error");
-    //     }
-    //   })
-    // },
     getPageInfo(){
       this.pagination.total = this.data.length;
       this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);

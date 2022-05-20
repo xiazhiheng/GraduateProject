@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import {mapState} from 'vuex';
 export default {
   name: "grade",
   data() {
@@ -31,6 +32,7 @@ export default {
       studentY:[],
     }
   },
+   computed:mapState(['userInfo']),
   created() {
     this.visit();
   },
@@ -68,8 +70,7 @@ export default {
         }
       })
       
-      this.$axios.post('/admin/findNumsbyLimition').then(res => {
-        console.log(res.data);
+      this.$axios.post('/admin/findNumsbyMadeById',{"userId":this.userInfo.id}).then(res => {
         if(res.data.code==200){
           let queBoxDom = this.$refs["queBox"];
           let queCharts = this.$echarts.init(queBoxDom);
@@ -82,8 +83,8 @@ export default {
             series: [
               {
                 data: [
-                  {value:res.data.data.privateNums,name:"私有试题"},
-                  {value:res.data.data.openNums,name:"共有试题"},
+                  {value:res.data.data.privateNums,name:"教师试题"},
+                  {value:res.data.data.openNums,name:"系统试题"},
                 ],
                 type: "pie",
                 radius: '55%',
@@ -190,7 +191,7 @@ export default {
           };
           studentCharts.setOption(studentOption);
           studentCharts.on("mouseover", params => {
-            
+
           });
         }else {
           this.isNull = true

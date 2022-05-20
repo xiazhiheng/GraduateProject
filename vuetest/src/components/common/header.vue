@@ -19,7 +19,7 @@
                 <li @click="message">
                   <el-icon><ChatLineSquare /></el-icon>
                   <a href="javascript:;">消息</a>
-                  <el-badge is-dot class="item" v-if="unReadFlag"></el-badge>
+                  <el-badge is-dot class="item" v-if="unReadFlag" id="dot"></el-badge>
                 </li>
                 <li @click="addressList">
                   <el-icon><List/></el-icon>
@@ -58,6 +58,7 @@
   title="通讯录"
   center
   top="20px"
+  width="30%"
   v-model="a_dialogVisible"
   :before-close="a_handleClose">
     <addressList></addressList>
@@ -66,16 +67,17 @@
   <el-dialog 
     title="修改密码"
     v-model="up_dialogVisible"
+    width="30%"
     :before-close="s_handleClose">
       <el-form id="form">
         <el-form-item label="旧密码 :">
-          <el-input v-model="form.oldPassword" show-password></el-input>
+          <el-input v-model="form.oldPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
         <el-form-item label="新密码 :">
-          <el-input v-model="form.newPassword" show-password></el-input>
+          <el-input v-model="form.newPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
         <el-form-item label="重复密码:">
-          <el-input v-model="form.repeatPassword" show-password></el-input>
+          <el-input v-model="form.repeatPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
           <div id="footer">
           <el-button @click="cancel">取 消</el-button>
@@ -110,18 +112,30 @@ export default {
     pInfor,
   },
   created() {
-    this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
-      console.log(res.data);
-      if(res.data.code==200){
-        this.unReadFlag = true;
-      }
-    })
+    // this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
+    //   console.log(res.data);
+    //   if(res.data.code==200){
+    //     this.unReadFlag = true;
+    //   }
+    // })
   },
   computed: mapState(["flag","menu",'userInfo']),
   methods: {
     //显示、隐藏退出按钮
     showSetting() {
       this.login_flag = !this.login_flag
+      this.getUnRead();
+    },
+    getUnRead(){
+      this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
+        console.log(res.data);
+        if(res.data.code==200){
+          this.unReadFlag = true;
+        }else{
+          this.unReadFlag = false;
+        }
+        console.log(this.unReadFlag);
+      })
     },
     //左侧栏放大缩小
     ...mapMutations(["toggle"]),
@@ -282,5 +296,8 @@ export default {
 .out .el-icon{
   margin-right: 5px;
   color: #1E9FFF;
+}
+#dot{
+  margin-right: 0px;
 }
 </style>

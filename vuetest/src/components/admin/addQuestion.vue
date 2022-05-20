@@ -59,14 +59,14 @@
     <el-dialog
       title="知识点列表"
       v-model="dialogVisible"
-      width="60%"
+      width="30%"
       :before-close="handleClose">
       <el-table :data="pagination.data" border id="t_table">
       <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
         <!-- <el-table-column prop="subjectName" label="课程"></el-table-column>
         <el-table-column prop="chapterName" label="章节"></el-table-column> -->
         <el-table-column prop="knowledgeContent" label="标签"></el-table-column>
-        <el-table-column width="230" fixed="right">
+        <el-table-column fixed="right">
           <template v-slot="scope">
             <el-button @click="select(scope.$index)" type="primary" size="small">选择</el-button>
           </template>
@@ -114,7 +114,11 @@ export default {
   computed:mapState(["subject",'userInfo']),
   methods: {
     getKnowledgeInfo(){
-      this.$axios.post('/admin/findKnowledgeByChapterIdAndCourseId',{"courseId":this.value[0],"chapterId":this.value[1]}).then(res => {
+      let condition = {};
+      condition.courseId = this.value[0];
+      condition.chapterId = this.value[1];
+      condition.videoStatus = 1;
+      this.$axios.post('/admin/findKnowledgeRequirements',condition).then(res => {
         console.log(res.data);
         if(res.data.code==200){
           this.knowledgeList = res.data.data;

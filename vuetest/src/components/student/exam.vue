@@ -92,7 +92,7 @@
               <ul class="end">
                 <li @click="previous()"><i class="iconfont icon-previous"></i><span>上一题</span></li>
                 <li v-if="mark_flag[type][Index] && flag" @click="mark()"><i class="iconfont icon-mark-o"></i><span>取消</span></li>
-                <li v-else-if="!flag" @click="mark()"><i class="iconfont icon-mark-o"></i><span>收藏</span></li>
+                <li v-else-if="!flag" @click="collect()"><i class="iconfont icon-mark-o"></i><span>收藏</span></li>
                 <li v-else @click="mark()"><i class="iconfont icon-mark-o"></i><span>标记</span></li>
                 <li @click="next()"><span>下一题</span><i class="iconfont icon-next"></i></li>
               </ul>
@@ -322,6 +322,21 @@ export default {
     },
     mark() { //标记功能
       this.mark_flag[this.type][this.Index] = !this.mark_flag[this.type][this.Index];  
+    },
+     collect() {
+      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[this.type][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+        if(res.data.code == 200){
+           this.$message({
+            message: '收藏成功',
+            type: 'success'
+          })
+        }else{
+          this.$message({
+            message: res.data.message,
+            type: 'error'
+          })
+        }
+      })
     },
     commitTest(){
       this.$confirm("考试结束时间未到,是否提前交卷","友情提示",{
@@ -796,4 +811,9 @@ export default {
 #lack {.el-checkbox__label,.el-radio__label{
   color: #c8c811;}
 }
+// .el-dialog{
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-around;
+// }
 </style>

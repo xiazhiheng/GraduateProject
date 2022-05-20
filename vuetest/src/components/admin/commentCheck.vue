@@ -77,8 +77,13 @@ export default {
         })
       }else{
         this.$axios.post('/admin/showFalseComment').then((res)=>{
+          console.log(res);
           if(res.data.code == 200){
-            this.data = res.data.data;
+            if(res.data.data==null){
+              this.data = [];
+            }else{
+              this.data = res.data.data;
+            }
             this.getCommentInfoByPage();
           }
           else{
@@ -89,6 +94,7 @@ export default {
     },
     getCommentInfoByPage(){
       // 获取该分页的评论信息
+      console.log(this.data);
       this.pagination.total = this.data.length;
       this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
       console.log(this.pagination.data);

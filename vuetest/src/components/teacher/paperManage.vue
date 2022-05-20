@@ -56,7 +56,7 @@
             <el-input v-model="form.testPaperName"></el-input>
           </el-form-item>
           <el-form-item label="时长">
-            <el-input v-model="form.testPaperTime"></el-input>
+            <el-input v-model="form.testPaperTime" type="number" min="1"></el-input>
           </el-form-item>
           <el-form-item label="难度">
             <el-radio v-model="form.testPaperDifficulty" label="1">简单</el-radio>
@@ -85,7 +85,7 @@
             <el-input v-model="autoForm.testPaperName"></el-input>
           </el-form-item>
           <el-form-item label="时长">
-            <el-input v-model="autoForm.testPaperTime" type="number"></el-input>
+            <el-input v-model="autoForm.testPaperTime" type="number" min="1"></el-input>
           </el-form-item>
           <el-form-item label="难度">
             <el-radio v-model="autoForm.testPaperDifficulty" label="1">简单</el-radio>
@@ -93,7 +93,7 @@
             <el-radio v-model="autoForm.testPaperDifficulty" label="3">困难</el-radio>
           </el-form-item>
           <el-form-item label="题目数">
-            <el-input v-model="autoForm.testPaperQuestionNums" type="number"></el-input>
+            <el-input v-model="autoForm.testPaperQuestionNums" type="number" min="1"></el-input>
           </el-form-item>
         </el-form>
       </section>
@@ -203,7 +203,12 @@ export default {
         })
       }else if(this.form.testPaperTime == null || this.form.testPaperTime == ""){
         this.$message({
-          message: '考试时间不能为空',
+          message: '时间不能为空',
+          type: 'error'
+        })
+      }else if(this.form.testPaperTime<=0){
+        this.$message({
+          message: '时间不能小于0',
           type: 'error'
         })
       }
@@ -234,11 +239,15 @@ export default {
       if(this.autoForm.testPaperName==null || this.autoForm.testPaperName==""){
         this.$message.error("试卷名称不能为空");
       }else if(this.autoForm.testPaperTime==null || this.autoForm.testPaperTime==""){
-        this.$message.error("考试时长不能为空");
+        this.$message.error("时长不能为空");
+      }else if(this.autoForm.testPaperTime<=0){
+        this.$message.error("时长不能小于0");
       }else if(this.autoForm.testPaperDifficulty==null){
         this.$message.error("请选择试卷难度");
       }else if(this.autoForm.testPaperQuestionNums==null || this.autoForm.testPaperQuestionNums==""){
         this.$message.error("题目数不能为空");
+      }else if(this.autoForm.testPaperQuestionNums<=0){
+        this.$message.error("题目数不能小于0");
       }else{
         this.$axios.post('/teacher/autoAddTestPaper',this.autoForm).then(res => {
           if(res.data.code == 200) {

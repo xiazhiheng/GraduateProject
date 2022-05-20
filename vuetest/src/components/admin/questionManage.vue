@@ -1,8 +1,8 @@
 
 <template>
   <div class="all">
-    <div id="top">
-      <el-select placeholder="课程" v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
+    <div id="q_top">
+      <el-select id="c_subject" placeholder="课程" v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
         <el-option
           v-for="item in subject"
           :key="item.value"
@@ -10,7 +10,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select placeholder="章节" v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
+      <el-select id="c_chapter" placeholder="章节" v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
         <el-option v-if="condition.courseId!=null"
           v-for="item in subject[condition.courseId-1].children"
           :key="item.value"
@@ -18,7 +18,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select placeholder="难度" v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
+      <el-select id="c_difficulty" placeholder="难度" v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null" style="width:150px">
         <el-option
           label="简单"
           :value="1">
@@ -32,7 +32,7 @@
           :value="3">
         </el-option>
       </el-select>
-      <el-select  placeholder="试题类型" v-model="condition.questionType" clearable @clear="condition.questionType = null">
+      <el-select id="c_type" placeholder="试题类型" v-model="condition.questionType" clearable @clear="condition.questionType = null" style="width:150px">
         <el-option
           label="单选"
           :value="1">
@@ -190,7 +190,7 @@
     <el-dialog
       title="知识点列表"
       v-model="k_dialogVisible"
-      width="60%"
+      width="30%"
       :before-close="k_handleClose">
       <el-table :data="k_pagination.data" border id="t_table">
       <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
@@ -460,5 +460,15 @@ export default {
 }
 .el-dialog{
   width: 200px;
+}
+#q_top{
+  display: flex;
+  flex-wrap: wrap;
+  .el-select,.el-button{
+    margin: 5px;
+  }
+  .el-select .el-input{
+    width: 100%;
+  }
 }
 </style>

@@ -13,7 +13,7 @@
 				<el-button type="text">登录</el-button>/
 				<el-button type="text" @click="to_register">注册</el-button>
 				<input type="text" placeholder="Username" v-model="account">
-				<input type="password" placeholder="Password" v-model="pass">
+				<input type="password" placeholder="Password" v-model="pass" onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18">
 				<button id="login-button" @click="login">Login</button>
 			</div>
 		</div>

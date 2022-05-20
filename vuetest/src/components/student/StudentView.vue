@@ -225,6 +225,9 @@ export default {
     font-size: 16px;
     font-weight: bold;
   }
+  #lt #title{
+    color: #a0cfff;
+  }
   /* .el-container:nth-child(5) .el-aside,
   .el-container:nth-child(6) .el-aside {
     line-height: 260px;

@@ -4,22 +4,22 @@
         <!-- <div> -->
         <el-button v-if="userInfo.role == 'student'" type="text" @click="to_searchTeacher" id="searchTeacher"><el-icon><plus/></el-icon></el-button>
         <el-collapse-item v-if="userInfo.role == 'student'" title="老师">
-          <div v-for="(item,index) in teacherList">
-            <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+          <div v-for="(item,index) in teacherList" id="list">
+            <el-avatar :size="40" class="h-avatar" :src="item.userImageUrl"></el-avatar>
             <p>{{item.userName}}</p>
           </div>
         </el-collapse-item>
         <el-button v-if="userInfo.role == 'student'" type="text" @click="to_searchStudent" id="searchStudent"><el-icon><plus/></el-icon></el-button>
         <!-- </div> -->
         <el-collapse-item title="学生">
-        <div v-for="(item,index) in studentList">
-          <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+        <div v-for="(item,index) in studentList" id="list">
+          <el-avatar :size="40" class="h-avatar" :src="item.userImageUrl"></el-avatar>
           <p>{{item.userName}}</p>
         </div>
         </el-collapse-item>
         <el-collapse-item title="待同意">
-          <div v-for="(item,index) in waitAgreeList">
-            <el-avatar :size="50" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+          <div v-for="(item,index) in waitAgreeList" id="list">
+            <el-avatar :size="40" class="h-avatar" :src="item.userImageUrl"></el-avatar>
             <span id="name">{{item.userName}}</span>
             <el-button @click="agree(item.userId)">同意</el-button>
             <el-button @click="refuse(item.userId)">拒绝</el-button>
@@ -300,6 +300,10 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    align-items: center;
+  }
+  #list{
+    display:flex;
     align-items: center;
   }
 </style>

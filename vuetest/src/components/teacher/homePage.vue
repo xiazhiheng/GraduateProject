@@ -75,6 +75,8 @@ export default {
       color: #000;
       margin-top: 20px;
       margin-left: 10px;
+      display: flex;
+      justify-content: center;
     }
     ul {
       display: flex;

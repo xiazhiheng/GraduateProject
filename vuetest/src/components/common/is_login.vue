@@ -1,6 +1,6 @@
 <template>
   <div class="grid-content bg-purple-light hr">
-    <el-dropdown trigger="click">
+    <el-dropdown trigger="click" @visible-change="getUnRead">
       <div class="el-dropdown-link" id="login_head">
         <el-avatar :size="50" :src="userInfo.imgUrl" class="h-avatar" :fit="none"></el-avatar>
         <!-- <el-button type="text" id="login_name">{{userInfo.name}}</el-button> -->
@@ -42,6 +42,7 @@
     center
     top="20px"
     v-model="a_dialogVisible"
+    width="30%"
     :before-close="a_handleClose">
       <addressList></addressList>
     </el-dialog>
@@ -63,16 +64,17 @@
     <el-dialog 
     title="修改密码"
     v-model="up_dialogVisible"
+    width="30%"
     :before-close="s_handleClose">
       <el-form id="form">
         <el-form-item label="旧密码 :">
-          <el-input v-model="form.oldPassword" show-password></el-input>
+          <el-input v-model="form.oldPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
         <el-form-item label="新密码 :">
-          <el-input v-model="form.newPassword" show-password></el-input>
+          <el-input v-model="form.newPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
         <el-form-item label="重复密码:">
-          <el-input v-model="form.repeatPassword" show-password></el-input>
+          <el-input v-model="form.repeatPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
         </el-form-item>
           <div id="footer">
           <el-button @click="cancel">取 消</el-button>
@@ -114,16 +116,20 @@
     created(){
       if(this.userInfo.id!=null){
         this.getSchedule();
+      }
+    },
+    methods:{
+      getUnRead(){
         this.$axios.post('/websocketChat/findIsHaveNoReadChat',{"userId":this.userInfo.id}).then(res=>{
           console.log(res.data);
           if(res.data.code==200){
             this.unReadFlag = true;
+          }else{
+            this.unReadFlag = false;
           }
           console.log(this.unReadFlag);
         })
-      }
-    },
-    methods:{
+      },
       getSchedule(){
         this.$axios.post('/student/selectNowadays?userId='+this.userInfo.id).then(res=>{
           console.log(res.data);
@@ -165,7 +171,8 @@
       },
       s_handleClose(){
         this.s_dialogVisible = false;
-        this.$axios.post('/student/updateStudentScheduleIsRead',{"studentScheduleId":this.memo.studentScheduleId})
+        console.log(this.memo.studentScheduleId);
+        this.$axios.post('/student/updateStudentScheduleByIsRead',{"studentScheduleId":this.memo.studentScheduleId})
       },
       cancel(){
         this.up_dialogVisible = false;

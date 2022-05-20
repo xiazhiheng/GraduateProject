@@ -38,12 +38,11 @@ export default {
         this.paper = res.data.data;
         console.log("paper",this.paper);
         this.$axios.post('/teacher/findTestPaperAvgScoreAndAnswerNums',{"userId":this.userInfo.id}).then(res => {
-          console.log(res.data);
+          console.log("score",res.data);
           if(res.data.code==200){
             let n;
             for(let i=0;i<res.data.data.length;i++){
               n = this.paper.findIndex(item=>item.testPaperId == res.data.data[i].testPaperId);
-              console.log(n);
               this.X[i] = this.paper[n].testPaperName;
               if(res.data.data[i].testPaperAvgScore!=null){
                 this.ScoreY[i] = res.data.data[i].testPaperAvgScore;
@@ -58,6 +57,7 @@ export default {
             }
             let NumBoxDom = this.$refs["NumBox"];
             let NumCharts = this.$echarts.init(NumBoxDom);
+            console.log(this.X);
             let NumOption = {
               title : {
                     text: `作答次数`,
@@ -133,7 +133,7 @@ export default {
           let QuestionCharts = this.$echarts.init(QuestionBoxDom);
           let QuestionOption = {
             title : {
-                  text: `平均分数`,
+                  text: `正确率`,
                   x:'center',
                   y:'bottom',
               },
@@ -154,6 +154,9 @@ export default {
           };
           QuestionCharts.setOption(QuestionOption);
           this.display = true;
+        }
+        else{
+          this.$message.error("暂无做题记录");
         }
       })
     }

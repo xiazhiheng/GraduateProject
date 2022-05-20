@@ -1,8 +1,8 @@
 // 试题管理页面
 <template>
   <div class="all">
-    <div id="top">
-      <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
+    <div id="q_top">
+      <el-select v-model="condition.courseId" placeholder="课程" clearable @change="courseChange" @clear="condition.courseId = null">
       <el-option
         v-for="item in subject"
         :key="item.value"
@@ -10,7 +10,7 @@
         :value="item.value">
       </el-option>
       </el-select>
-      <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
+      <el-select v-model="condition.chapterId" placeholder="章节" clearable @clear="condition.chapterId = null">
         <el-option v-if="condition.courseId!=null"
           v-for="item in subject[condition.courseId-1].children"
           :key="item.value"
@@ -18,7 +18,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
+      <el-select v-model="condition.questionDifficulty" placeholder="难度" clearable @clear="condition.questionDifficulty = null" style="width:150px">
         <el-option
           label="简单"
           :value="1">
@@ -32,7 +32,7 @@
           :value="3">
         </el-option>
       </el-select>
-      <el-select v-model="condition.questionType" clearable @clear="condition.questionType = null">
+      <el-select v-model="condition.questionType" placeholder="类型" clearable @clear="condition.questionType = null" style="width:150px">
         <el-option
           label="单选"
           :value="1">
@@ -490,6 +490,16 @@ export default {
   text-align: left;
   p{
     font-weight:normal;
+  }
+}
+#q_top{
+  display: flex;
+  flex-wrap: wrap;
+  .el-select,.el-button{
+    margin: 5px;
+  }
+  .el-select .el-input{
+    width: 100%;
   }
 }
 </style>

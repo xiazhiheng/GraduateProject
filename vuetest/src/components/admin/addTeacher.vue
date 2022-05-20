@@ -6,7 +6,7 @@
         <el-input v-model="form.userId"></el-input>
       </el-form-item>
       <el-form-item label="密码">
-        <el-input v-model="form.userPassword"></el-input>
+        <el-input v-model="form.userPassword" onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
       </el-form-item>
       <el-form-item label="姓名">
         <el-input v-model="form.userName"></el-input>

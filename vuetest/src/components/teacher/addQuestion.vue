@@ -128,7 +128,11 @@ export default {
   computed:mapState(["subject",'userInfo']),
   methods: {
     getKnowledgeInfo(){
-      this.$axios.post('/admin/findKnowledgeByChapterIdAndCourseId',{"courseId":this.value[0],"chapterId":this.value[1]}).then(res => {
+      let condition = {};
+      condition.courseId = this.value[0];
+      condition.chapterId = this.value[1];
+      condition.videoStatus = 1;
+      this.$axios.post('/admin/findKnowledgeRequirements',condition).then(res => {
         console.log(res.data);
         if(res.data.code==200){
           this.knowledgeList = res.data.data;
