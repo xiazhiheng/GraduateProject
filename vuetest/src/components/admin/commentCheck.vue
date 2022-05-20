@@ -1,12 +1,24 @@
 // 学生管理页面
 <template>
   <div class="all">
+    <el-select v-model="condition"  @change="getCommentInfo">
+        <el-option
+          :key="1"
+          label="全部"
+          :value="1">
+        </el-option>
+        <el-option
+          :key="2"
+          label="待审核"
+          :value="2">
+        </el-option>
+      </el-select>
     <el-table :data="pagination.data" border id="t_table">
       <el-table-column prop="userId" label="用户ID" ></el-table-column>
       <el-table-column prop="commentContent" label="内容" ></el-table-column>
       <el-table-column width="150" fixed="right">
         <template v-slot="scope">
-          <el-button @click="access(scope.row.commentId)" type="primary" size="small">通过</el-button>
+          <el-button @click="access(scope.row.commentId)" type="primary" size="small" v-if="condition==2">通过</el-button>
           <el-button @click="deleteComment(scope.row.commentId)" type="danger" size="small">删除</el-button>
         </template>
       </el-table-column>
@@ -28,6 +40,7 @@
 export default {
   data() {
     return {
+      condition:2,
       data:[
         // {
         //   userId:"001",
@@ -51,17 +64,28 @@ export default {
   },
   methods: {
     getCommentInfo() {
-      this.getCommentInfoByPage();
       // 查询所有待审核评论
-      this.$axios.post('/admin/showFalseComment').then((res)=>{
-        if(res.data.code == 200){
-          this.data = res.data.data;
-          this.getCommentInfoByPage();
-        }
-				else{
-          console.log("error");
-        }
-			})
+      if(this.condition==1){
+        this.$axios.post('/admin/findAllComment').then((res)=>{
+          if(res.data.code == 200){
+            this.data = res.data.data;
+            this.getCommentInfoByPage();
+          }
+          else{
+            console.log("error");
+          }
+        })
+      }else{
+        this.$axios.post('/admin/showFalseComment').then((res)=>{
+          if(res.data.code == 200){
+            this.data = res.data.data;
+            this.getCommentInfoByPage();
+          }
+          else{
+            console.log("error");
+          }
+        })
+      }
     },
     getCommentInfoByPage(){
       // 获取该分页的评论信息

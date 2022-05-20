@@ -61,10 +61,7 @@
           <div class="right">
             <div class="title">
               <el-button @click="() => slider_flag = !slider_flag">题目列表</el-button>
-              <p id="time">{{time}}</p>
-              <!-- <p>{{title}}</p> -->
-              <!-- <i class="iconfont icon-right auto-right"></i> -->
-              <!-- <span>全卷共{{radioNum+checkListNum}}题  <i class="iconfont icon-time"></i>倒计时：<b>{{time}}</b>分钟</span> -->
+              <span id="time">倒计时：{{time}}min</span>
             </div>
 
             <div class="content" v-if="type">
@@ -225,32 +222,35 @@ export default {
     this.getExamData()
   },
   methods: {
-    test(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.mark_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-      }
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.mark_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-      }
-    },
+    // test(){
+    //   this.radioNum = this.paperData.questionList[0].length;
+    //   this.checkListNum = this.paperData.questionList[1].length;
+    //   this.answer[0] = [];
+    //   this.answer[1] = [];
+    //   for(let i=0;i<this.paperData.questionList[0].length;i++){
+    //     this.bg_flag[0][i] = 0;
+    //     this.mark_flag[0][i] = 0;
+    //     this.isPractice[0][i] = 0;
+    //     this.radio[i] = null;
+    //     this.answer[0][i] = [null,null,null,null];
+    //   }
+    //   for(let j=0;j<this.paperData.questionList[1].length;j++){
+    //     this.bg_flag[1][j] = 0;
+    //     this.mark_flag[1][j] = 0;
+    //     this.isPractice[1][j] = 0;
+    //     this.checkList[j] = [];
+    //     this.answer[1][j] = [null,null,null,null];
+    //   }
+    // },
     getExamData() { //获取当前试卷所有信息
       this.$axios.post('/studentAnswer/findTestPaperQuestion',{"testPaperId":this.paperId}).then(res => {  //通过paperId获取试题题目信息
         console.log(res);
         this.paperData.questionList[0] = res.data.data.questionRadioList;
         this.paperData.questionList[1] = res.data.data.questionMultipleList;
         this.radioNum = this.paperData.questionList[0].length;
+        if(this.radioNum==0){
+          this.type = 1;
+        }
         this.checkListNum = this.paperData.questionList[1].length;
         this.answer[0] = [];
         this.answer[1] = [];
@@ -305,13 +305,17 @@ export default {
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
         if(this.checkListNum==0){
-          this.commitTest();  
+          if(this.flag){
+            this.commitTest();
+          }
         }else{
           this.type = 1;
           this.Index = 0;
         }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
-        this.commitTest();
+        if(this.flag){
+          this.commitTest();
+        }
       }else{
         this.Index++;
       } 
@@ -373,6 +377,24 @@ export default {
         console.log("继续答题")
       })
     },
+    timeOut(){
+      this.$message.warning("时间到");
+      for(let i=0;i<this.radioNum;i++){
+          this.isPractice[0][i] = true;
+          this.judgeAnswer(0,i)
+        }
+        for(let j=0;j<this.checkListNum;j++){
+          this.isPractice[1][j] = true;
+          this.judgeAnswer(1,j)
+        }
+        this.$axios.post('/studentAnswer/answerTestPaper?questionIds='+this.studentAnswer,{"testPaperId":this.paperId,"userId":this.userInfo.id});
+        this.flag = false;
+        if(this.radioNum==0){
+          this.change(0,1)
+        }else{
+          this.change(0,0)
+        }
+    },
     judgeAnswer(type,Index){
       let list = type ? this.checkList[Index] : this.radio[Index];
       if(list==null){
@@ -426,7 +448,7 @@ export default {
       this.$router.go(-1);
     },
     showTime() { //倒计时
-      setInterval(() => {
+      let t = setInterval(() => {
         this.time -= 1
         if(this.time == 10) {
           this.$message({
@@ -436,12 +458,12 @@ export default {
           })}
         else if(this.time == 0) {
           clearInterval(t);
-          this.commitTest();
+          this.timeOut();
         }
         if(this.flag==false){
           clearInterval(t);
         }
-      },1000 * 60)
+      },1000*60)
     },
     play(){
       this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.paperData.questionList[this.type][this.Index].knowledgeId}).then(res=>{
@@ -456,6 +478,7 @@ export default {
 
 <style lang="scss">
 .title{
+  display: flex;
   width: 100%;
 }
 #time{
@@ -606,6 +629,7 @@ export default {
   margin-right: 10px;
   padding-right: 30px;
   display: flex;
+  justify-content: space-between;
   margin-top: 10px;
   background-color: #fff;
   height: 50px;
@@ -770,6 +794,6 @@ export default {
   color: red;}
 }
 #lack {.el-checkbox__label,.el-radio__label{
-  color: yellow;}
+  color: #c8c811;}
 }
 </style>

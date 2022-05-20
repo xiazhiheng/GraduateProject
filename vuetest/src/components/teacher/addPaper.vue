@@ -60,19 +60,24 @@
             <el-checkbox :label="scope.row.questionId" ></el-checkbox>
           </template>
         </el-table-column>
-        <el-table-column prop="subjectName" label="课程"></el-table-column>
-        <el-table-column prop="chapterName" label="章节"></el-table-column>
-        <el-table-column prop="difficultyName" label="难度"></el-table-column>
-        <el-table-column prop="typeName" label="类型"></el-table-column>
+        <el-table-column prop="subjectName" label="课程" width="170"></el-table-column>
+        <el-table-column prop="chapterName" label="章节" width="170"></el-table-column>
+        <el-table-column prop="difficultyName" label="难度" width="50"></el-table-column>
+        <el-table-column prop="typeName" label="类型" width="50"></el-table-column>
         <el-table-column prop="questionContent" label="题干" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionOptionA" label="选项A" :show-overflow-tooltip="true"></el-table-column>
+        <!-- <el-table-column prop="questionOptionA" label="选项A" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="questionOptionB" label="选项B" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="questionOptionC" label="选项C" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="questionOptionD" label="选项D" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="questionAnswer" label="答案"></el-table-column>
         <el-table-column prop="questionAnalysis" label="解析" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="knowledge" label="知识点"></el-table-column>
-        <el-table-column prop="authority" label="题目权限"></el-table-column>
+        <el-table-column prop="authority" label="题目权限"></el-table-column> -->
+        <el-table-column width="80" fixed="right">
+          <template v-slot="scope">
+            <el-button @click="q_display(scope.$index)" type="primary" size="small">详情</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-button v-if="addFlag" id="create" type="primary" @click="addQuestion">添加</el-button>
       <el-button v-else id="create" type="primary" @click="t_create">生成试卷</el-button>
@@ -88,6 +93,54 @@
       :total="pagination.total"
       class="page">
     </el-pagination>
+
+     <!-- 试题详情 -->
+    <el-dialog
+      title="试题信息"
+      v-model="display"
+      width="50%">
+      <section class="display">
+        <el-form ref="form" :model="form" >
+          <el-form-item label="课程:">
+            <p>{{form.subjectName}}</p>
+          </el-form-item>
+          <el-form-item label="章节:">
+            <p>{{form.chapterName}}</p>
+          </el-form-item>
+          <el-form-item label="难度:">
+           <p>{{form.difficultyName}}</p>
+          </el-form-item>
+          <el-form-item label="类型:">
+            <p>{{form.typeName}}</p>
+          </el-form-item>
+          <el-form-item label="题干:">
+            <p id="content">{{form.questionContent}}</p>
+          </el-form-item>
+          <el-form-item label="A选项:">
+            <p>{{form.questionOptionA}}</p>
+          </el-form-item>
+          <el-form-item label="B选项:">
+            <p>{{form.questionOptionB}}</p>
+          </el-form-item>
+          <el-form-item label="C选项:">
+            <p>{{form.questionOptionC}}</p>
+          </el-form-item>
+          <el-form-item label="D选项:">
+            <p>{{form.questionOptionD}}</p>
+          </el-form-item>
+          <el-form-item label="答案:">
+            <p>{{form.questionAnswer}}</p>
+          </el-form-item>
+          <el-form-item label="解析:">
+            <p id="analysis">{{form.questionAnalysis}}</p>
+          </el-form-item>
+          <el-form-item label="知识点:">
+            <p>{{form.knowledgeContent}}</p>
+          </el-form-item>
+        </el-form>
+      </section>
+    </el-dialog>
+
     <!-- 编辑对话框-->
     <el-dialog
       title="编辑试卷信息"
@@ -142,34 +195,49 @@ export default {
         size: 6, //每页条数
         data:[],
       },
+      display:false,
       dialogVisible: false, //对话框
       form: {}, //保存点击以后当前试卷的信息
     };
   },
   computed: mapState(["subject","difficulty","type","authority",'userInfo']),
   created() {
-    this.getQuestionInfo();
+    this.search();
   },
   methods: {
     //条件检索试题
     search(){
       if(this.addFlag==1){
-        this.$axios.post('teacher/findAddElseQuestion?testPaperId='+this.paperId+'&teacherId='+this.userInfo.id,this.condition).then(res=>{
+        this.$axios.post('teacher/findAddElseQuestion/'+this.pagination.current+'/'+this.pagination.size+'?testPaperId='+this.paperId+'&teacherId='+this.userInfo.id,this.condition).then(res=>{
           console.log(res.data);
           if(res.data.code==200){
-            this.data = res.data.data;
-            this.getQuestionInfoBypage();
+            this.pagination.total = res.data.data.totalSize;
+            this.pagination.data = res.data.data.content;
+            for(let i=0;i<this.pagination.data.length;i++){
+              this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
+              this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
+              this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
+              this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
+              this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
+            }
           }else{
             console.log("error");
           }
         })  
       }else{
         console.log("condition",this.condition);
-        this.$axios.post('/admin/findQuestionByRequirements',this.condition).then(res=>{
+        this.$axios.post('/admin/findQuestionByRequirements/'+this.pagination.current+'/'+this.pagination.size,this.condition).then(res=>{
           console.log(res.data);
           if(res.data.code==200){
-            this.data = res.data.data;
-            this.getQuestionInfoBypage();
+            this.pagination.total = res.data.data.totalSize;
+            this.pagination.data = res.data.data.content;
+            for(let i=0;i<this.pagination.data.length;i++){
+              this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
+              this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
+              this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
+              this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
+              this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
+            }
           }else{
             console.log("error");
           }
@@ -180,42 +248,46 @@ export default {
     courseChange(){
       this.condition.chapterId = null;
     },
-    getQuestionInfo() {
-      // 查询试题信息
-      if(this.addFlag==1){
-        console.log(1);
-        this.$axios.get('/teacher/findAddElseQuestion',{params:{"testPaperId":this.paperId,"teacherId":this.userInfo.id}}).then((res)=>{
-          if(res.data.code == 200){
-            this.data = res.data.data;
-            this.getQuestionInfoBypage();
-          }else{
-            console.log("error");
-          }
-        })
-      }else{
-        console.log(2);
-        this.$axios.post('/teacher/findAllPublicQuestion').then((res)=>{
-          if(res.data.code==200){
-            this.data = res.data.data;
-            this.getQuestionInfoBypage();
-          }else{
-            console.log("error");
-          }
-			  })
-      }
-    },
-    getQuestionInfoBypage(){
-      // 获取该分页的试题信息
-      this.pagination.total = this.data.length;
-      this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
-      console.log(this.pagination.data);
-      for(let i=0;i<this.pagination.data.length;i++){
-        this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
-        this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
-        this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
-        this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
-        this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
-      }
+    // getQuestionInfo() {
+    //   // 查询试题信息
+    //   if(this.addFlag==1){
+    //     console.log(1);
+    //     this.$axios.get('/teacher/findAddElseQuestion',{params:{"testPaperId":this.paperId,"teacherId":this.userInfo.id}}).then((res)=>{
+    //       if(res.data.code == 200){
+    //         this.data = res.data.data;
+    //         this.getQuestionInfoBypage();
+    //       }else{
+    //         console.log("error");
+    //       }
+    //     })
+    //   }else{
+    //     console.log(2);
+    //     this.$axios.post('/teacher/findAllPublicQuestion').then((res)=>{
+    //       if(res.data.code==200){
+    //         this.data = res.data.data;
+    //         this.getQuestionInfoBypage();
+    //       }else{
+    //         console.log("error");
+    //       }
+		// 	  })
+    //   }
+    // },
+    // getQuestionInfoBypage(){
+    //   // 获取该分页的试题信息
+    //   this.pagination.total = this.data.length;
+    //   this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
+    //   console.log(this.pagination.data);
+    //   for(let i=0;i<this.pagination.data.length;i++){
+    //     this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
+    //     this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
+    //     this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
+    //     this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
+    //     this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
+    //   }
+    // },
+    q_display(index){
+      this.form = this.pagination.data[index];
+      this.display = true;
     },
     t_create(){
       if(this.checkList.length==0){
@@ -230,12 +302,12 @@ export default {
     //改变当前记录条数
     handleSizeChange(val) {
       this.pagination.size = val;
-      this.getQuestionInfoBypage();
+      this.search();
     },
     //改变当前页码，重新发送请求
     handleCurrentChange(val) {
       this.pagination.current = val;
-      this.getQuestionInfoBypage();
+      this.search();
     },
     handleClose(done) { //关闭提醒
       this.$confirm('确认关闭？')
@@ -325,5 +397,13 @@ export default {
 }
 .el-dialog{
   width: 200px;
+}
+.display .el-form-item{
+  margin-bottom: 0px;
+  font-weight: bold;
+  text-align: left;
+  p{
+    font-weight:normal;
+  }
 }
 </style>

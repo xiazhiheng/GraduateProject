@@ -12,14 +12,16 @@
       <el-table-column prop="userId" label="ID"></el-table-column>
       <el-table-column prop="userName" label="姓名"></el-table-column>
       <el-table-column prop="userSignature" label="签名"></el-table-column>
-      <el-table-column prop="userAge" label="年龄"></el-table-column>
       <el-table-column prop="sex" label="性别"></el-table-column>
       <el-table-column prop="userPhone" label="电话号码"></el-table-column>
-      <el-table-column prop="userPassword" label="密码"></el-table-column>
-      <el-table-column width="230" fixed="right">
+      <el-table-column width="80" fixed="right" label="账号状态">
         <template v-slot="scope">
           <el-button v-if="scope.row.userPriviledge == 0"  @click="t_ban(scope.row.userId,scope.$index)" type="danger" size="small">禁用</el-button>
           <el-button v-else   @click="t_ban(scope.row.userId,scope.$index)" type="primary" size="small">启用</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column width="150" fixed="right">
+        <template v-slot="scope">
           <el-button @click="t_update(scope.$index)" type="primary" size="small">编辑</el-button>
           <el-button @click="t_delete(scope.row.userId)" type="danger" size="small">删除</el-button>
         </template>
@@ -45,23 +47,18 @@
       :before-close="handleClose">
       <section class="update">
         <el-form ref="form" v-model="form" label-width="80px">
-          <el-form-item label="姓名">
+          <el-form-item label="用户名">
             <el-input v-model="form.userName"></el-input>
           </el-form-item>
           <el-form-item label="签名">
             <el-input v-model="form.userSignature"></el-input>
           </el-form-item>
-          <el-form-item label="年龄">
-            <el-input v-model="form.userAge"></el-input>
-          </el-form-item>
           <el-form-item label="性别">
-            <el-input v-model="form.userSex"></el-input>
+            <el-radio v-model="form.userSex" label="1">男</el-radio>
+            <el-radio v-model="form.userSex" label="2">女</el-radio>
           </el-form-item>
           <el-form-item label="电话号码">
             <el-input v-model="form.userPhone"></el-input>
-          </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="form.userPassword"></el-input>
           </el-form-item>
         </el-form>
       </section>
@@ -146,12 +143,20 @@ export default {
     },
     t_update(index) { //修改教师信息
       this.dialogVisible = true;
-      this.form = this.pagination.data[index];
+      this.form = JSON.parse(JSON.stringify(this.pagination.data[index]));
     },
     getTeacherInfo() {
       // 查询所有教师信息
       this.$axios.post('/admin/findAllTeacher').then((res)=>{
 				this.data = res.data.data;
+        for(let i=0;i<this.data.length;i++){
+          if(this.data[i].userSex==1){
+            this.data[i].Sex =  '男';
+          }else if(this.data[i].userSex==2){
+            this.data[i].Sex =  '女';
+          }
+          
+        }
         this.getTeacherInfoBypage();
 			})
     },

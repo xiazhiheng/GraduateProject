@@ -105,9 +105,12 @@ export default {
     //搜索试卷
     search() {
       this.$axios.post('/student/findTestPaperByName',{"testPaperName":this.input}).then(res => {
-        if(res.data.code == 200) {
-          this.data = res.data.data;
+        if(res.data.code == 200 && res.data.data!=null) {
+          this.data = [];
+          this.data[0] = res.data.data;
           this.getExamInfoByPage();
+        }else{
+          this.$message.warning("未查询到结果");
         }
       })
     },

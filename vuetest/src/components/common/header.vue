@@ -13,13 +13,22 @@
           <transition name="fade">
             <div class="out" ref="out" v-show="login_flag">
               <ul v-if="userInfo.role == 'teacher'">
-                <li @click="pInfor"><a href="javascript:;">个人信息</a></li>
+                <li @click="pInfor">
+                  <el-icon><Avatar/></el-icon>
+                  <a href="javascript:;">个人信息</a></li>
                 <li @click="message">
+                  <el-icon><ChatLineSquare /></el-icon>
                   <a href="javascript:;">消息</a>
                   <el-badge is-dot class="item" v-if="unReadFlag"></el-badge>
                 </li>
-                <li @click="addressList"><a href="javascript:;">通讯录</a></li>
-                <li @click="up_dialogVisible = true"><a href="javascript:;">修改密码</a></li>
+                <li @click="addressList">
+                  <el-icon><List/></el-icon>
+                  <a href="javascript:;">通讯录</a>
+                </li>
+                <li @click="up_dialogVisible = true">
+                  <el-icon><Edit /></el-icon>
+                  <a href="javascript:;">修改密码</a>
+                </li>
                 <li class="exit" @click="exit()"><a href="javascript:;">退出登录</a></li>
               </ul>
               <ul v-else>
@@ -256,6 +265,8 @@ export default {
   list-style: none;
 }
 .user .out ul > li {
+  display: flex;
+  align-items: center;
   height: 26px;
   line-height: 26px;
 }
@@ -267,5 +278,9 @@ export default {
   margin-top: 4px;
   padding-top: 4px;
   border-top: 1px solid #ccc;
+}
+.out .el-icon{
+  margin-right: 5px;
+  color: #1E9FFF;
 }
 </style>

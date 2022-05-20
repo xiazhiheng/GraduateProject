@@ -12,13 +12,16 @@
       <el-table-column prop="userId" label="ID" ></el-table-column>
       <el-table-column prop="userName" label="姓名" ></el-table-column>
       <el-table-column prop="userSignature" label="签名" ></el-table-column>
-      <el-table-column prop="userAge" label="年龄" ></el-table-column>
-      <el-table-column prop="userSex" label="性别" ></el-table-column>
+      <el-table-column prop="Sex" label="性别"></el-table-column>
       <el-table-column prop="userPhone" label="电话号码" ></el-table-column>
-      <el-table-column width="150" fixed="right">
+      <el-table-column width="80" fixed="right" label="账号状态">
         <template v-slot="scope">
           <el-button v-if="!scope.row.userPriviledge"   @click="s_ban(scope.row.userId,scope.$index)" type="danger" size="small">禁用</el-button>
           <el-button v-else   @click="s_ban(scope.row.userId,scope.$index)" type="primary" size="small">启用</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column width="80" fixed="right">
+        <template v-slot="scope">
           <el-button @click="deleteById(scope.row.userId)" type="danger" size="small">删除</el-button>
         </template>
       </el-table-column>
@@ -71,10 +74,18 @@ export default {
       })
       
     },
-     getStudentInfo() {
+    getStudentInfo() {
       // 查询所有学生信息
       this.$axios.post('/admin/findAllStudent').then((res)=>{
 					this.data = res.data.data;
+          for(let i=0;i<this.data.length;i++){
+            if(this.data[i].userSex==1){
+              this.data[i].Sex =  '男';
+            }else if(this.data[i].userSex==2){
+              this.data[i].Sex =  '女';
+            }
+            
+          }
           this.getStudentInfoByPage();
 			})
     },

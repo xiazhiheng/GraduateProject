@@ -11,9 +11,9 @@
       :collapse="flag"
       background-color="#0f6fed"  
       menu-trigger="click" router>
-      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index" :class="{'open': flag == false}">
+      <el-submenu v-for="(item,index) in menu" :index='item.index' :key="index" id="menu">
         <template v-slot:title>
-          <div class="left-width">
+          <div class="left-width" id="icon">
             <el-icon class="iconfont" >
               <component :is="item.icon"/>
             </el-icon>
@@ -36,7 +36,6 @@ export default {
   data() {
     return {
       menu:null,
-     
     }
   },
   computed: mapState(['flag','userInfo',"a_menu","t_menu"]),
@@ -67,13 +66,19 @@ export default {
 
 <style>
 .el-menu-vertical-demo .el-submenu__title {
-  
   overflow: hidden;
 }
-.left-width .iconfont {
+.left-width{
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+}
+/* .left-width .iconfont {
   font-size: 18px;
   color: rgb(143, 18, 18);
-}
+} */
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   /* min-height: 500px; */
 }
@@ -96,9 +101,9 @@ export default {
   background-color: rgb(72, 66, 95);
 }
 .el-submenu__title i {
-    color: #3d3deb !important;
+  color:white !important;
 }
-.open{
-  width:227px;
+#menu .el-menu-item{
+  min-width: 150px;
 }
 </style>

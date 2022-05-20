@@ -1,6 +1,6 @@
 <!--考生答题界面-->
 <template>
-  <div id="answer" v-show="load">
+  <div id="answer" v-if="load">
     <el-container>
       <!--顶部信息栏-->
      <!-- <div class="top">
@@ -46,8 +46,7 @@
                     </li>
                   </ul>
                 </div>
-                <div v-if="!flag" class="final" @click="commitTest()">结束考试</div>
-                <div v-else class="final" @click="exit()">退出</div>
+                <div v-if="!flag" class="final" @click="commit()">结束考试</div>
               </div>
             </div>
           </transition>
@@ -96,12 +95,12 @@
               </ul>
             </div>
 
-            <div class="analysis" v-show="isPractice[type][Index]">
+            <div class="analysis" v-if="isPractice[type][Index]">
               <ul>
                 <li> <el-tag type="success">正确答案：</el-tag><span class="right">{{paperData.questionList[type][Index].questionAnswer}}</span></li>
                 <li v-if="paperData.questionList[type][Index].knowledge!=null"><el-tag>知识点：<a href="#" @click="play">{{paperData.questionList[type][Index].knowledge}}</a></el-tag></li>
                 <li><el-tag>题目解析：</el-tag></li>
-                <li>{{paperData.questionList[0][Index].questionAnalysis == null ? '暂无解析': paperData.questionList[type][Index].questionAnalysis}}</li>
+                <li>{{paperData.questionList[type][Index].questionAnalysis == null ? '暂无解析': paperData.questionList[type][Index].questionAnalysis}}</li>
               </ul>
               <div v-if="!commentFlag" id="pinglun">
                 <el-button  @click="displayComment" type="text">评论</el-button>
@@ -167,7 +166,6 @@ export default {
       thumpFlag: [],//是否点赞
       stampFlag:[],//是否点踩
       type:0,//题目种类
-      flag: false,  
 
       input:null,
 
@@ -243,24 +241,24 @@ export default {
   },
   
   methods: {
-    test(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-      }
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-      }
-    },
+    // test(){
+    //   this.radioNum = this.paperData.questionList[0].length;
+    //   this.checkListNum = this.paperData.questionList[1].length;
+    //   this.answer[0] = [];
+    //   this.answer[1] = [];
+    //   for(let i=0;i<this.paperData.questionList[0].length;i++){
+    //     this.bg_flag[0][i] = 0;
+    //     this.isPractice[0][i] = 0;
+    //     this.radio[i] = null;
+    //     this.answer[0][i] = [null,null,null,null];
+    //   }
+    //   for(let j=0;j<this.paperData.questionList[1].length;j++){
+    //     this.bg_flag[1][j] = 0;
+    //     this.isPractice[1][j] = 0;
+    //     this.checkList[j] = [];
+    //     this.answer[1][j] = [null,null,null,null];
+    //   }
+    // },
     getExamData() { //获取当前试卷所有信息
       // let date = new Date()
       // this.startTime = this.getTime(date)
@@ -268,10 +266,17 @@ export default {
       this.$axios.post('/studentAnswer/findAllStudentWrongQuestion',{"userStudentId":this.userInfo.id}).then(res => {  //通过paperId获取试题题目信息
         console.log(res.data);
         if(res.data.code == 200){
+          if(res.data.data==null){
+            this.$router.go(-1);
+            this.$message.error("当前没有错题");
+          }
           this.paperData.questionList[0] = res.data.data.questionRadioList;
           this.paperData.questionList[1] = res.data.data.questionMultipleList;
           console.log(this.paperData);
           this.radioNum = this.paperData.questionList[0].length;
+          if(this.radioNum==0){
+            this.type = 1;
+          }
           this.checkListNum = this.paperData.questionList[1].length;
           this.answer[0] = [];
           this.answer[1] = [];
@@ -288,7 +293,8 @@ export default {
             this.answer[1][j] = [null,null,null,null];
           }
         }else{
-          console.log("error");
+          this.$router.go(-1);
+          this.$message.error(res.data.message);
         }
         this.load = true;
       })
@@ -316,13 +322,13 @@ export default {
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
         if(this.checkListNum==0){
-          this.commitTest();
+          this.commit();
         }else{
           this.type = 1;
           this.Index = 0;
         }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
-        this.commitTest();
+        this.commit();
       }else{
         this.Index++;
       } 
@@ -368,7 +374,7 @@ export default {
       }
     },
     collect() {
-      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[0][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[this.type][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
         if(res.data.code == 200){
            this.$message({
             message: '收藏成功',
@@ -378,8 +384,7 @@ export default {
       })
     },
     cancelWrong(){
-      console.log("wrong");
-      this.$axios.post('/studentAnswer/deleteStudentWrongQuestion',{"questionId":this.paperData.questionList[0][this.Index].questionId,"userStudentId":this.userInfo.id}).then(res=>{
+      this.$axios.post('/studentAnswer/deleteStudentWrongQuestion',{"questionId":this.paperData.questionList[this.type][this.Index].questionId,"userStudentId":this.userInfo.id}).then(res=>{
         console.log(res);
       })
     },
@@ -471,44 +476,13 @@ export default {
         console.log("输入为空");
       }
     },
-    commitTest(){
-      this.flag = true;
-      console.log(this.radio);
-      console.log(this.checkAnswer);
-    },
     commit() { //答案提交计算分数
       this.$confirm("是否交卷",{
         confirmButtonText: '立即交卷',
         cancelButtonText: '再检查一下',
         type: 'warning'
       }).then(() => {
-        console.log("交卷")
-        //提交成绩信息
-        let studentQuestionAnswer = [];
-        console.log("test1");
-        for(let i=0;i<this.radioNum;i++){
-          console.log("test11");
-          console.log(this.paperData.questionList[0][i].questionId);
-          studentQuestionAnswer[i].questionId = this.paperData.questionList[0][i].questionId;
-          console.log("test12");
-          studentQuestionAnswer[i].studentAnswer = this.radio[i];
-        }
-        console.log("test2");
-        for(let j=0;j<this.checkListNum;j++){
-          studentQuestionAnswer[this.radioNum+j].questionId = this.paperData.questionList[1][j].questionId;
-          studentQuestionAnswer[this.radioNum+j].studentAnswer = this.checkAnswer[j];
-        }
-        console.log("test3");
-        this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&testPaperId="+this.paperId,{studentQuestionAnswer}).then(res => {
-          console.log("res",res.data);
-          if(res.data.code == 200) {
-            console.log("上传成功")
-          }else{
-            console.log("上传失败")
-          }
-        })
-      }).catch(() => {
-        console.log("继续答题")
+        this.$router.go(-1);
       })
     },
     exit(){
@@ -707,7 +681,7 @@ export default {
   width: 100%;
   margin-bottom: -8px;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 .l-bottom .item ul li a {
@@ -821,15 +795,8 @@ export default {
   color: red;}
 }
 #lack {.el-checkbox__label,.el-radio__label{
-  color: yellow;}
+  color: #c8c811;}
 }
-// #avatar{
-//   float: left;
-//   height: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
 .comments {
     width: 100%;
     margin: 2.5rem auto 0;

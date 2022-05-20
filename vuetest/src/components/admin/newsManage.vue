@@ -7,6 +7,7 @@
           <a id="new" :href="scope.row.newspaperUrl" target="_blank" >{{scope.row.newspaperName}}</a>
         </template>
       </el-table-column> 
+      <el-table-column prop="newspaperTime" label="时间"></el-table-column>
       <el-table-column width="150" fixed="right">
         <template v-slot="scope">
           <el-button @click="n_delete(scope.row.newspaperId)" type="danger" size="small">删除</el-button>

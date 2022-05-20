@@ -1,19 +1,29 @@
 <template>
   <div class="grid-content bg-purple-light hr">
-    <el-dropdown>
+    <el-dropdown trigger="click">
       <div class="el-dropdown-link" id="login_head">
         <el-avatar :size="50" :src="userInfo.imgUrl" class="h-avatar" :fit="none"></el-avatar>
         <!-- <el-button type="text" id="login_name">{{userInfo.name}}</el-button> -->
       </div>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item><el-button @click="pInfo" type="text">个人信息</el-button></el-dropdown-item>
           <el-dropdown-item>
+            <el-icon><Avatar/></el-icon>
+            <el-button @click="pInfo" type="text">个人信息</el-button>
+          </el-dropdown-item>
+          <el-dropdown-item>
+             <el-icon><ChatLineSquare /></el-icon>
             <el-button type="text" @click="message">消息</el-button>
             <el-badge is-dot class="item" v-if="unReadFlag"></el-badge>
           </el-dropdown-item>
-          <el-dropdown-item><el-button type="text" @click="addressList">通讯录</el-button></el-dropdown-item>
-          <el-dropdown-item><el-button type="text" @click="up_dialogVisible = true">修改密码</el-button></el-dropdown-item>
+          <el-dropdown-item>
+            <el-icon><List/></el-icon>
+            <el-button type="text" @click="addressList">通讯录</el-button>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <el-icon><Edit/></el-icon>
+            <el-button type="text" @click="up_dialogVisible = true">修改密码</el-button>
+          </el-dropdown-item>
           <el-dropdown-item><el-button type="text" @click="to_login">退出登录</el-button></el-dropdown-item>
         </el-dropdown-menu>
       </template>  
@@ -155,6 +165,7 @@
       },
       s_handleClose(){
         this.s_dialogVisible = false;
+        this.$axios.post('/student/updateStudentScheduleIsRead',{"studentScheduleId":this.memo.studentScheduleId})
       },
       cancel(){
         this.up_dialogVisible = false;
@@ -220,5 +231,13 @@
   }
   #form{
     max-width: 300px;
+  }
+  .el-dropdown-item{
+    display: flex;
+    align-items: center;
+  }
+  .el-dropdown-menu__item .el-icon{
+    margin-right: 5px;
+    color: #1E9FFF;
   }
 </style>

@@ -71,7 +71,7 @@ export default {
 					else if(res.data.code == 502){
 						this.$message({message:'账号或密码不正确',type:'error'});
 					}else if(res.data.code == 501){
-						this.$message({message:res.data.data.userName+'您的账号已被封禁,如需解封请联系管理员'+'\n'+'管理员电话：17740419819',type:'error'});
+						this.$message({message:res.data.data.tokenUser.userName+',您的账号已被封禁,如需解封请联系管理员'+'\n'+'管理员电话：17740419819',type:'error'});
 					}
 			})
     },

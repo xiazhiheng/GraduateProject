@@ -193,17 +193,16 @@ export default{
         console.log(res.data);
         if(res.data.code==200){
           this.message = res.data.data;
-          // this.scrollDown();
+          this.scrollDown();
         }else{
           console.log("error");
         }
       })
     },
     scrollDown() {
-      console.log(this.$refs['myScrollbar'].wrap.scrollTop);
-      console.log(this.$refs['myScrollbar'].wrap.scrollHeight);
-      console.log(this.$refs['myScrollbar'].wrap.scrollTop);
-      this.$refs['myScrollbar'].wrap.scrollTop = this.$refs['myScrollbar'].wrap.scrollHeight;
+      this.$nextTick(function (){
+         this.$refs['myScrollbar'].wrap.scrollTop = this.$refs['myScrollbar'].wrap.scrollHeight;
+      })
     },
     initWebSocket () { 
       let Url = this.url.slice(7);
@@ -241,7 +240,7 @@ export default{
         for(let i=0;i<this.message.length;i++){
           console.log(this.message[i].chatSentId == this.userInfo.id);
         }
-        // this.scrollDown();
+        this.scrollDown();
       }
       //接收消息提醒
       else if(!m.isSystem && m.isOnline && m.isCreateChat){
@@ -279,19 +278,19 @@ export default{
       this.message.push(mess);
       this.input = null;
       console.log(this.message);
-      // this.scrollDown();
+      this.scrollDown();
     },
   },
   destroyed() {
     console.log("close");
 		this.websock.close() // 页面销毁后断开websocket连接
 	},
-  mounted: function () {
-    this.$nextTick(function (){
-      console.log("mounted");
-      this.scrollDown();
-    })
-  }
+  // mounted: function () {
+  //   this.$nextTick(function (){
+  //     console.log("mounted");
+  //     this.scrollDown();
+  //   })
+  // }
 }
 </script>
 

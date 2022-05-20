@@ -9,7 +9,7 @@
         <li v-else class="item" v-for="(item,index) in list">
           <h4>{{item.label}}</h4>
           <div v-if="!answerFlag[index]">
-            <el-button @click="to_fristPractice(item.value)">开始刷题</el-button>
+            <el-button @click="startPractice(item.value)">开始刷题</el-button>
           </div>
           <div v-else>
             <el-button @click="to_continuePractice(item.value)">继续刷题</el-button>
@@ -56,6 +56,9 @@ export default {
       }else{
         this.flag = false;
       }
+    },
+    startPractice(id){
+      this.$router.push({path:'/practice',query:{paperId:id,isFrist:1}});
     },
     to_fristPractice(id){
       this.$axios.post('/studentAnswer/deleteStudentAnswer?userId='+this.userInfo.id+'&chapterId='+id).then(res=>{

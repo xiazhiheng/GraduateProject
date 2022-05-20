@@ -1,14 +1,11 @@
 <template>
   <div class="all">
      <div id="top">
-      <el-input v-model="input" id="search">
-        <template #append>
-          <el-button @click="search"><el-icon><search/></el-icon></el-button>
-        </template>
-      </el-input>
+      <el-form-item label="章节">
+        <el-cascader v-model="value" :options="subject" @change="handleChange"></el-cascader>
+      </el-form-item>
     </div>
     <el-table :data="pagination.data" border id="k_table">
-    <!-- <el-table-column prop="userPhone" label="出题人"></el-table-column> -->
       <el-table-column prop="subjectName" label="课程"></el-table-column>
       <el-table-column prop="chapterName" label="章节" width="200px"></el-table-column>
       <el-table-column prop="knowledgeContent" label="内容" width="150px"></el-table-column>
@@ -105,7 +102,7 @@ export default{
   },
   methods:{
     getKnowledgeInfo(){
-      this.$axios.post('/teacher/findPersonalKnowledge',{"knowledgeMadeById":this.userInfo.id}).then(res => {
+      this.$axios.post('/admin/findAllKnowledge').then(res => {
         if(res.data.code == 200){
           console.log(res.data.data);
           this.data = res.data.data
@@ -116,7 +113,7 @@ export default{
         }
       })
     },
-    search(){
+    handleChange(){
       this.$axios.post('').then(res =>{
         if(res.data.code==200){
           this.data = res.data.data;
@@ -126,6 +123,16 @@ export default{
         }
       })
     },
+    // search(){
+    //   this.$axios.post('').then(res =>{
+    //     if(res.data.code==200){
+    //       this.data = res.data.data;
+    //       this.getPageInfo();
+    //     }else{
+    //       console.log("error");
+    //     }
+    //   })
+    // },
     getPageInfo(){
       this.pagination.total = this.data.length;
       this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
@@ -136,16 +143,7 @@ export default{
       }
        console.log(this.pagination.data);
     },
-    // k_ban(id){
-    //   this.$axios.post('');
-    //   this.getKnowledgeInfo();
-    // },
-    // k_update(index){
-    //   this.form = this.pagination.data[index];
-    //   this.value[0] = this.form.courseId;
-    //   this.value[1] = this.form.chapterId;
-    //   this.dialogVisible = true;
-    // },
+    
     play(index){
       this.videoUrl = this.pagination.data[index].videoUrl;
       this.dialogVisible = true;

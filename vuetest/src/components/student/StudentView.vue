@@ -223,6 +223,7 @@ export default {
   #menu{
     font-family: 微软雅黑, 'Microsoft YaHei';
     font-size: 16px;
+    font-weight: bold;
   }
   /* .el-container:nth-child(5) .el-aside,
   .el-container:nth-child(6) .el-aside {

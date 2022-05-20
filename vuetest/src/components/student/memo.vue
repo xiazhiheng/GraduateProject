@@ -1,13 +1,13 @@
 <template>
   <el-calendar v-if="load">
     <template #dateCell="{ data }">
-      <p v-if="judge(data)" class='is-selected' @click="displayMemo(data.day)">
-        {{ data.day.split('-').slice(1).join('-') }}
-        {{'✔️'}}
-      </p>
-      <p v-else @click="to_addMemo(data.day)">
-        {{ data.day.split('-').slice(1).join('-') }}
-      </p>
+        <p v-if="judge(data)" class='is-selected' @click="displayMemo(data.day)" id="aq">
+          {{ data.day.split('-').slice(1).join('-') }}
+          {{'✔️'}}
+        </p>
+        <p v-else @click="to_addMemo(data.day)" id="aq">
+          {{ data.day.split('-').slice(1).join('-') }}
+        </p>
     </template>
   </el-calendar>
   <!-- 添加 -->
@@ -106,8 +106,9 @@ export default {
     },
     displayMemo(day){
       this.form.data = day;
-      let n = this.memo.findIndex(item=>item.data = day);
-      this.form = this.memo[n];
+      let n = this.memo.findIndex(item=>item.studentScheduleDate == day);
+      this.form = JSON.parse(JSON.stringify(this.memo[n]));
+      console.log(this.form);
       this.display_dialogVisible = true;
     },
     addMemo(){
@@ -162,6 +163,7 @@ export default {
       }
     },
     deleteMemo(){
+      console.log(this.form);
       this.$axios.post('/student/deleteStudentSchedule?studentScheduleId='+this.form.studentScheduleId).then(res=>{
         if(res.data.code==200){
           this.$message({
@@ -194,5 +196,9 @@ export default {
   }
   .is-selected {
     color: #1989FA;
+  }
+  #aq{
+    width: 100%;
+    height: 100%;
   }
 </style>

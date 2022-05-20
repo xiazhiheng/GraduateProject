@@ -773,7 +773,7 @@ export default {
   color: red;}
 }
 #lack {.el-checkbox__label,.el-radio__label{
-  color: yellow;}
+  color: #c8c811;}
 }
 // #avatar{
 //   float: left;

@@ -2,7 +2,7 @@
 <template>
   <div class="all">
     <div id="top">
-      <el-select v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
+      <el-select placeholder="课程" v-model="condition.courseId" clearable @change="courseChange" @clear="condition.courseId = null">
         <el-option
           v-for="item in subject"
           :key="item.value"
@@ -10,7 +10,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
+      <el-select placeholder="章节" v-model="condition.chapterId" clearable @clear="condition.chapterId = null">
         <el-option v-if="condition.courseId!=null"
           v-for="item in subject[condition.courseId-1].children"
           :key="item.value"
@@ -18,7 +18,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
+      <el-select placeholder="难度" v-model="condition.questionDifficulty" clearable @clear="condition.questionDifficulty = null">
         <el-option
           label="简单"
           :value="1">
@@ -32,7 +32,7 @@
           :value="3">
         </el-option>
       </el-select>
-      <el-select v-model="condition.questionType" clearable @clear="condition.questionType = null">
+      <el-select  placeholder="试题类型" v-model="condition.questionType" clearable @clear="condition.questionType = null">
         <el-option
           label="单选"
           :value="1">
@@ -45,21 +45,21 @@
       <el-button @click="search">检索</el-button>
     </div>
     <el-table :data="pagination.data" border id="t_table">
-      <el-table-column prop="subjectName" label="课程" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="chapterName" label="章节" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="difficultyName" label="难度"></el-table-column>
-      <el-table-column prop="typeName" label="类型"></el-table-column>
+      <el-table-column prop="subjectName" label="课程" width="170"></el-table-column>
+      <el-table-column prop="chapterName" label="章节" width="170"></el-table-column>
+      <el-table-column prop="difficultyName" label="难度" width="50"></el-table-column>
+      <el-table-column prop="typeName" label="类型" width="50"></el-table-column>
       <el-table-column prop="questionContent" label="题干" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="questionOptionA" label="选项A" :show-overflow-tooltip="true"></el-table-column>
+      <!-- <el-table-column prop="questionOptionA" label="选项A" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="questionOptionB" label="选项B" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="questionOptionC" label="选项C" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="questionOptionD" label="选项D" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="questionAnswer" label="答案"></el-table-column>
       <el-table-column prop="questionAnalysis" label="解析" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="knowledgeContent" label="知识点"></el-table-column>
-      <el-table-column prop="authority" label="题目权限"></el-table-column>
-      <el-table-column width="150" fixed="right">
+      <el-table-column prop="knowledgeContent" label="知识点"></el-table-column> -->
+      <el-table-column width="230" fixed="right">
         <template v-slot="scope">
+          <el-button @click="q_display(scope.$index)" type="primary" size="small">详情</el-button>
           <el-button @click="q_update(scope.$index)" type="primary" size="small">编辑</el-button>
           <el-button @click="q_delete(scope.row.questionId)" type="danger" size="small">删除</el-button>
         </template>
@@ -140,6 +140,52 @@
         <el-button type="primary" @click="submit()">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 试题详情 -->
+    <el-dialog
+      title="试题信息"
+      v-model="display"
+      width="50%">
+      <section class="display ">
+        <el-form ref="form" :model="form" >
+          <el-form-item label="课程:">
+            <p>{{form.subjectName}}</p>
+          </el-form-item>
+          <el-form-item label="章节:">
+            <p>{{form.chapterName}}</p>
+          </el-form-item>
+          <el-form-item label="难度:">
+           <p>{{form.difficultyName}}</p>
+          </el-form-item>
+          <el-form-item label="类型:">
+            <p>{{form.typeName}}</p>
+          </el-form-item>
+          <el-form-item label="题干:">
+            <p id="content">{{form.questionContent}}</p>
+          </el-form-item>
+          <el-form-item label="A选项:">
+            <p>{{form.questionOptionA}}</p>
+          </el-form-item>
+          <el-form-item label="B选项:">
+            <p>{{form.questionOptionB}}</p>
+          </el-form-item>
+          <el-form-item label="C选项:">
+            <p>{{form.questionOptionC}}</p>
+          </el-form-item>
+          <el-form-item label="D选项:">
+            <p>{{form.questionOptionD}}</p>
+          </el-form-item>
+          <el-form-item label="答案:">
+            <p>{{form.questionAnswer}}</p>
+          </el-form-item>
+          <el-form-item label="解析:">
+            <p id="analysis">{{form.questionAnalysis}}</p>
+          </el-form-item>
+          <el-form-item label="知识点:">
+            <p>{{form.knowledgeContent}}</p>
+          </el-form-item>
+        </el-form>
+      </section>
+    </el-dialog>
     <!-- 知识点列表 -->
     <el-dialog
       title="知识点列表"
@@ -168,7 +214,6 @@ export default {
     return {
       value:[],
       checkValue:[],
-      data:[],
       condition: {//检索条件
         courseId:null,
         chapterId:null,
@@ -184,7 +229,7 @@ export default {
         data:[]
       },
       k_pagination: {
-        //分页后的教师信息
+        //分页后的知识点信息
         current: 1, //当前页
         total: null, //记录条数
         size: 6, //每页条数
@@ -192,6 +237,7 @@ export default {
       },
       dialogVisible: false, //对话框
       k_dialogVisible:false,
+      display:false,//是否展示试题详情
       form: {}, //保存点击以后当前试题的信息
       knowledge:null,
       knowledgeList:[],
@@ -199,17 +245,21 @@ export default {
   },
   computed: mapState(["subject","difficulty","type","authority","userInfo"]),
   created() {
-    this.getQuestionInfo();
+    this.search();
   },
   methods: {
     q_update(index) { //修改试题信息
-      this.form = this.pagination.data[index];
+      this.form = JSON.parse(JSON.stringify(this.pagination.data[index]));
       this.value[0] = this.form.courseId;
       this.value[1] = this.form.chapterId;
       if(this.form.questionType == 2){
         this.checkValue = this.form.questionAnswer.split("");
       }
       this.dialogVisible = true;
+    },
+    q_display(index){
+      this.form = this.pagination.data[index];
+      this.display = true;
     },
     getKnowledgeInfo(){
       this.$axios.post('/admin/findKnowledgeByChapterIdAndCourseId',{"courseId":this.value[0],"chapterId":this.value[1]}).then(res => {
@@ -238,50 +288,50 @@ export default {
       this.form.knowledgeContent = this.knowledge.knowledgeContent; 
       this.k_dialogVisible = false;
     },
-    getQuestionInfo() {
-      // 查询所有试题信息
-      this.$axios.post('/admin/findAllQuestion').then((res)=>{
-        if(res.data.code == 200){
-          console.log(res.data.data);
-					this.data = res.data.data;
-        }
-        this.getQuestionInfoBypage();
-			})
-    },
     search(){
-      this.condition.questionMadeById=this.userInfo.id,
-     
-      this.$axios.post('/admin/findQuestionByRequirements',this.condition).then(res =>{
-        console.log(res);
+      this.condition.questionMadeById=this.userInfo.id;
+      this.$axios.post('/admin/findQuestionByRequirements/'+this.pagination.current+'/'+this.pagination.size,this.condition).then(res =>{
+        console.log("conpage",res);
         if(res.data.code==200){
-          this.data = res.data.data;
-          this.getQuestionInfoBypage();
-        }else{
-          console.log("error");
+          this.pagination.total = res.data.data.totalSize;
+          this.pagination.data = res.data.data.content;
+          for(let i=0;i<this.pagination.data.length;i++){
+            this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
+            this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
+            this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
+            this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
+            this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
+          }
         }
       })
     },
-    getQuestionInfoBypage(){
-      // 获取该分页的试题信息
-      this.pagination.total = this.data.length;
-      this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
-      for(let i=0;i<this.pagination.data.length;i++){
-        this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
-        this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
-        this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
-        this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
-        this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
-      }
-    },
+    // getQuestionInfoBypage(){
+    //   // 获取该分页的试题信息
+    //   this.$axios.post('/admin/findAllQuestion/',{"pageNum":this.pagination.current,"pageSize":this.pagination.size}).then((res)=>{
+    //    console.log("page",res);
+    //    if(res.data.code==200){
+    //       this.pagination.total = res.data.data.totalSize;
+    //       this.pagination.data = res.data.data.content;
+    //       for(let i=0;i<this.pagination.data.length;i++){
+    //         this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
+    //         this.pagination.data[i].chapterName = this.subject[this.pagination.data[i].courseId-1].children[this.pagination.data[i].chapterId-this.subject[this.pagination.data[i].courseId-1].num-1].label;
+    //         this.pagination.data[i].difficultyName = this.difficulty[this.pagination.data[i].questionDifficulty-1];
+    //         this.pagination.data[i].typeName =  this.type[this.pagination.data[i].questionType-1];
+    //         this.pagination.data[i].authority = this.authority[this.pagination.data[i].questionLimition];
+    //       }
+    //    }
+		// 	})
+      
+    // },
     //改变当前记录条数
     handleSizeChange(val) {
       this.pagination.size = val;
-      this.getQuestionInfoBypage();
+      this.search();
     },
     //改变当前页码，重新发送请求
     handleCurrentChange(val) {
       this.pagination.current = val;
-      this.getQuestionInfoBypage();
+      this.search();
     },
     q_delete(questionId) { //删除当前试题
       this.$confirm("确定删除当前试题吗？删除后无法恢复","Warning",{
@@ -291,7 +341,7 @@ export default {
       }).then(()=> { //确认删除
         this.$axios.post('/admin/deleteQuestion',{"questionId":questionId}).then(res => {
           if(res.data.code == 200){
-            this.getQuestionInfo();
+            this.search();
           }
           else{
             console.log("删除试题失败");
@@ -356,7 +406,7 @@ export default {
           }else{
             console.log("修改失败");
           }
-          this.getQuestionInfo();
+          this.search();
           this.dialogVisible = false;
         })
       }
@@ -378,7 +428,14 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-
+.display .el-form-item{
+  margin-bottom: 0px;
+  text-align: left;
+  font-weight: bold;
+  p{
+    font-weight:normal;
+  }
+}
 .all {
   margin-top: 50px;
   padding: 0px 40px;
@@ -398,7 +455,6 @@ export default {
 .el-table .warning-row {
   background: #000 !important;
 }
-
 .el-table .success-row {
   background: #dd5862;
 }

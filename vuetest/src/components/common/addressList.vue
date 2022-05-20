@@ -4,15 +4,22 @@
         <!-- <div> -->
         <el-button v-if="userInfo.role == 'student'" type="text" @click="to_searchTeacher" id="searchTeacher"><el-icon><plus/></el-icon></el-button>
         <el-collapse-item v-if="userInfo.role == 'student'" title="老师">
-          <div v-for="(item,index) in teacherList">{{item.userName}}</div>
+          <div v-for="(item,index) in teacherList">
+            <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+            <p>{{item.userName}}</p>
+          </div>
         </el-collapse-item>
         <el-button v-if="userInfo.role == 'student'" type="text" @click="to_searchStudent" id="searchStudent"><el-icon><plus/></el-icon></el-button>
         <!-- </div> -->
         <el-collapse-item title="学生">
-        <div v-for="(item,index) in studentList">{{item.userName}}</div>
+        <div v-for="(item,index) in studentList">
+          <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+          <p>{{item.userName}}</p>
+        </div>
         </el-collapse-item>
         <el-collapse-item title="待同意">
           <div v-for="(item,index) in waitAgreeList">
+            <el-avatar :size="50" class="h-avatar" :src="item.userImageUrl"></el-avatar>
             <span id="name">{{item.userName}}</span>
             <el-button @click="agree(item.userId)">同意</el-button>
             <el-button @click="refuse(item.userId)">拒绝</el-button>
@@ -30,11 +37,13 @@
         </template>
       </el-input>
       
-      <ul>
+      <ul id="InfoList">
         <li v-for="item in userList" id="addList">
-          <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
-          <p>{{item.userName}}</p>
-          <el-button @click="addTeacher(item.userId)">添加</el-button>
+          <el-avatar :size="50" class="h-avatar" :src="item.userImageUrl"></el-avatar>
+          <div id="info_r">
+            <p>{{item.userName}}</p>
+            <el-button @click="addTeacher(item.userId)" size="small" type="text">添加</el-button>
+          </div>
         </li>
       </ul>
     </el-dialog>
@@ -79,21 +88,24 @@ export default {
   computed:mapState(['userInfo']),
   methods:{
     init(){
+      console.log("init");
       if(this.userInfo.role == "student"){
         this.$axios.post('/student/findAgreeTeacher',{"studentId":this.userInfo.id}).then(res =>{
+          console.log(res.data);
           if(res.data.code == 200){
             this.teacherList = res.data.data;
           }else{
-            console.log("请求老师列表失败");
+            this.teacherList = [];
           }
         });
       }
       if(this.userInfo.role == "student"){
         this.$axios.post('/student/findOurFriends?userId='+this.userInfo.id).then(res =>{
+          console.log(res.data);
           if(res.data.code == 200){
             this.studentList = res.data.data;
           }else{
-            console.log("请求好友列表失败");
+            this.studentList = [];
           }
         });
       }else if(this.userInfo.role == "teacher"){
@@ -101,7 +113,7 @@ export default {
           if(res.data.code == 200){
             this.studentList = res.data.data;
           }else{
-            console.log("请求学生列表失败");
+            this.studentList = [];
           }
         });
       }else{
@@ -115,7 +127,7 @@ export default {
             this.waitAgreeList = res.data.data;
             console.log(this.waitAgreeList);
           }else{
-            console.log("学生请求待同意列表失败");
+            this.waitAgreeList = [];
           }
         });
       }else if(this.userInfo.role == "teacher"){
@@ -125,7 +137,7 @@ export default {
             this.waitAgreeList = res.data.data;
             console.log(this.waitAgreeList);
           }else{
-            console.log("老师请求待同意列表失败");
+            this.waitAgreeList = [];
           }
         });
       }else{
@@ -188,7 +200,7 @@ export default {
           this.userList = res.data.data;
           console.log(this.userList);
         }else{
-          console.log("查找教师失败");
+          
         }
       })
     },
@@ -202,7 +214,7 @@ export default {
         if(res.data.code == 200){
           this.userList = res.data.data;
         }else{
-          console.log("error");
+          this.$message.error("未查找到结果")
         }
       });
     },
@@ -225,7 +237,7 @@ export default {
         if(res.data.code == 200){
           this.userList = res.data.data;  
         }else{
-          console.log("error");
+          this.$message.error("未查找到结果")
         }
       });
     },
@@ -276,6 +288,18 @@ export default {
   }
   #addList{
     display: flex;
+    margin: 10px;
+  }
+  #InfoList{
+    display: flex;
+  }
+  #info{
+    display: flex;
+  }
+  #info_r{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     align-items: center;
   }
 </style>

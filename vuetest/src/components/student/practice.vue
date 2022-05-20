@@ -206,27 +206,25 @@ export default {
   },
   
   methods: {
-    test(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-      }
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-      }
-    },
+    // test(){
+    //   this.radioNum = this.paperData.questionList[0].length;
+    //   this.checkListNum = this.paperData.questionList[1].length;
+    //   this.answer[0] = [];
+    //   this.answer[1] = [];
+    //   for(let i=0;i<this.paperData.questionList[0].length;i++){
+    //     this.bg_flag[0][i] = 0;
+    //     this.isPractice[0][i] = 0;
+    //     this.radio[i] = null;
+    //     this.answer[0][i] = [null,null,null,null];
+    //   }
+    //   for(let j=0;j<this.paperData.questionList[1].length;j++){
+    //     this.bg_flag[1][j] = 0;
+    //     this.isPractice[1][j] = 0;
+    //     this.checkList[j] = [];
+    //     this.answer[1][j] = [null,null,null,null];
+    //   }
+    // },
     getExamData() { //获取当前试卷所有信息
-      // let date = new Date()
-      // this.startTime = this.getTime(date)
       if(!this.isFrist){
         this.$axios.post('/studentAnswer/answerPublicQuestionAgain?studentId='+this.userInfo.id+"&chapterId="+this.paperId).then(res=>{
           console.log(res.data);
@@ -254,11 +252,15 @@ export default {
       else{
         console.log("test2")
         this.$axios.post('/studentAnswer/findPublicQuestion',{"chapterId":this.paperId}).then(res => {  //通过paperId获取试题题目信息
-          console.log(res.data);
           if(res.data.code == 200){
             this.paperData.questionList[0] = res.data.data.questionRadioList;
             this.paperData.questionList[1] = res.data.data.questionMultipleList;
-            this.initpaper();
+            if(this.paperData.questionList[0].length==0 && this.paperData.questionList[1].length==0){
+              this.$router.go(-1);
+              this.$message.warning("未添加试题");
+            }else{
+              this.initpaper();
+            }
           }else{
             console.log("error");
           }
@@ -268,6 +270,11 @@ export default {
     initpaper(){
       this.radioNum = this.paperData.questionList[0].length;
       this.checkListNum = this.paperData.questionList[1].length;
+      console.log(this.radioNum,this.checkListNum);
+      if(this.radioNum==0){
+        this.type = 1;
+      }
+      console.log("拦截失败");
       this.answer[0] = [];
       this.answer[1] = [];
       for(let i=0;i<this.paperData.questionList[0].length;i++){
@@ -391,14 +398,17 @@ export default {
       }
     },
     collect() {
-      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[0][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[this.type][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
         if(res.data.code == 200){
            this.$message({
             message: '收藏成功',
             type: 'success'
           })
         }else{
-          console.log("error");
+          this.$message({
+            message: res.data.message,
+            type: 'error'
+          })
         }
       })
     },
@@ -522,15 +532,17 @@ export default {
     }
   },
   beforeRouteLeave(){
-    this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
-    this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&chapterId="+this.paperId,this.studentQuestionAnswer).then(res => {
-      console.log("res",res.data);
-      if(res.data.code == 200) {
-        console.log("上传成功")
-      }else{
-        console.log("上传失败")
-      }
-    })
+    if(this.paperData.questionList[0].length!=0 || this.paperData.questionList[1].length!=0){
+      this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
+      this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&chapterId="+this.paperId,this.studentQuestionAnswer).then(res => {
+        console.log("res",res.data);
+        if(res.data.code == 200) {
+          console.log("上传成功")
+        }else{
+          console.log("上传失败")
+        }
+      })
+    }
   }
 }
 </script>
@@ -834,7 +846,7 @@ export default {
   color: red;}
 }
 #lack {.el-checkbox__label,.el-radio__label{
-  color: yellow;}
+  color: #c8c811;}
 }
 // #avatar{
 //   float: left;

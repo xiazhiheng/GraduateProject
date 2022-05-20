@@ -19,10 +19,14 @@
       <el-table-column prop="testPaperName" label="名称"></el-table-column>
       <el-table-column prop="testPaperTime" label="时长"></el-table-column>
       <el-table-column prop="difficultyName" label="难度"></el-table-column>
-      <el-table-column width="230" fixed="right">
+      <el-table-column width="100" fixed="right" label="试卷状态">
         <template v-slot="scope">
-          <el-button v-if="scope.row.testPaperStatus" @click="p_ban(scope.row.testPaperId)" type="primary" size="small">发布</el-button>
-          <el-button v-else @click="p_ban(scope.row.testPaperId)" type="danger" size="small">禁用</el-button>
+          <el-button v-if="scope.row.testPaperStatus==1" @click="p_ban(scope.$index)" type="primary" size="small">发布</el-button>
+          <el-button v-else @click="p_ban(scope.$index)" type="danger" size="small">禁用</el-button>
+        </template>
+      </el-table-column>
+       <el-table-column width="150" fixed="right">
+        <template v-slot="scope">
           <el-button @click="p_update(scope.$index)" type="primary" size="small">编辑</el-button>
           <el-button @click="p_delete(scope.row.testPaperId)" type="danger" size="small">删除</el-button>
         </template>
@@ -126,15 +130,18 @@ export default {
     this.getPaperInfo();
   },
   methods: {
-    p_ban(paperId){
-      console.log(paperId);
-      this.$axios.post('/teacher/updateTestPaperStatus',{"testPaperId":paperId}).then((res) => {
-        this.getPaperInfo();
+    p_ban(index){
+      this.$axios.post('/teacher/updateTestPaperStatus',{"testPaperId":this.pagination.data[index].testPaperId}).then((res) => {
+        if(res.data.code==200){
+          this.pagination.data[index].testPaperStatus = !this.pagination.data[index].testPaperStatus;
+        }else{
+          this.$message.error("修改失败");
+        }
       })
     },
     p_update(index) { //修改试卷信息
       this.dialogVisible = true;
-      this.form = this.pagination.data[index];
+      this.form = JSON.parse(JSON.stringify(this.pagination.data[index]));
     },
     p_manage(paperId){
       this.$router.push({path:'/t_paperQuestionManage',query:{paperId:paperId}});
@@ -142,13 +149,14 @@ export default {
     getPaperInfo(){
       // 查询所有试卷信息
       this.$axios.post('teacher/findTeacherTestPaper',{"testPaperMadeById":this.userInfo.id}).then((res)=>{
-					this.data = res.data.data;
+					console.log(res);
+          this.data = res.data.data;
           this.getPaperInfoBypage();
 			})
       
     },
     search(){
-      this.$axios.post('/student/findTestPaperByName',{"testPaperName":this.input}).then(res =>{
+      this.$axios.post('/teacher/findTestPaperByName',{"testPaperName":this.input}).then(res =>{
         console.log(res);
         if(res.data.code==200){
             this.data=[];
@@ -206,6 +214,7 @@ export default {
         })
       }else{
         this.$axios.post('/teacher/updateTestPaper',this.form).then(res => {
+          console.log(res);
           if(res.data.code == 200) {
             this.$message({
               message: '更新成功',

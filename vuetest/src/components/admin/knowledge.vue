@@ -1,7 +1,7 @@
 <template>
   <div class="all">
     <el-table :data="pagination.data" border id="k_table">
-    <el-table-column prop="knowledgeMadeById" label="教师Id"></el-table-column>
+    <el-table-column prop="knowledgeMadeById" label="教师ID"></el-table-column>
     <el-table-column prop="subjectName" label="课程"></el-table-column>
     <el-table-column prop="chapterName" label="章节" width="200px"></el-table-column>
     <el-table-column prop="knowledgeContent" label="内容" width="150px"></el-table-column>

@@ -3,7 +3,6 @@
   <el-descriptions title="User Info">
     <el-descriptions-item label="用户名">{{Info.userName}}</el-descriptions-item>
     <el-descriptions-item label="签名">{{Info.userSignature}}</el-descriptions-item>
-    <!-- <el-descriptions-item label="年龄">{{form.userAge}}</el-descriptions-item> -->
     <el-descriptions-item v-if="Info.userSex == 1" label="性别">男</el-descriptions-item>
     <el-descriptions-item v-else-if="Info.userSex == 2" label="性别">女</el-descriptions-item>
     <el-descriptions-item label="电话">{{Info.userPhone}}</el-descriptions-item>
@@ -13,15 +12,6 @@
   v-model="dialogVisible"
   :before-close="handleClose">
     <div id="upload">
-      <!-- <el-upload id="Plus"
-        class="avatar-uploader"
-        :action="url+'/file/uploadImage'"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
-        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-        <i v-else class="el-icon-plus avatar-uploader-icon" id="plus_btn"></i>
-      </el-upload> -->
       <el-avatar :size="150" :src="form.userImageUrl" class="h-avatar" :fit="none"></el-avatar>
       <el-upload
         class="upload-demo"

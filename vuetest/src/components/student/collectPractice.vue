@@ -1,6 +1,6 @@
 <!--考生答题界面-->
 <template>
-  <div id="answer" v-show="load">
+  <div id="answer" v-if="load">
     <el-container>
       <!--顶部信息栏-->
      <!-- <div class="top">
@@ -46,8 +46,7 @@
                     </li>
                   </ul>
                 </div>
-                <div v-if="!flag" class="final" @click="commitTest()">结束考试</div>
-                <div v-else class="final" @click="exit()">退出</div>
+                <div v-if="!flag" class="final" @click="commit()">结束考试</div>
               </div>
             </div>
           </transition>
@@ -88,8 +87,8 @@
             <div class="operation">
               <ul class="end" v-if="bg_flag[type][Index]">
                 <li @click="previous()"><i class="iconfont icon-previous"></i><span>上一题</span></li>
-                <!-- <li v-if="collect_flag" @click="collect()"><span>取消</span></li> -->
-                <li @click="uncollect()"><span>取消收藏</span></li>
+                <li @click="collect()"  v-if="cancelFlag[type][Index]"><span id="cc">收藏</span></li>
+                <li @click="uncollect()" v-else><span id="cc" >取消收藏</span></li>
                 <li @click="next()"><span>下一题</span><i class="iconfont icon-next"></i></li>
               </ul>
               <ul class="end" v-else>
@@ -162,6 +161,7 @@ export default {
       paperId:this.$route.query.paperId,
       bg_flag: [[],[]], //已答标识符,已答改变背景色
       slider_flag: true, //左侧显示隐藏标识符
+      cancelFlag:[[],[]],
       isPractice:[[],[]],//是否展示解析
       commentFlag:false,//是否展示评论
       thumpFlag: [],//是否点赞
@@ -238,39 +238,38 @@ export default {
   computed:mapState(['userInfo']),
   created() {
     this.getExamData()
-    // this.showTime()
   },
   
   methods: {
-    test(){
-      this.radioNum = this.paperData.questionList[0].length;
-      this.checkListNum = this.paperData.questionList[1].length;
-      this.answer[0] = [];
-      this.answer[1] = [];
-      for(let i=0;i<this.paperData.questionList[0].length;i++){
-        this.bg_flag[0][i] = 0;
-        this.isPractice[0][i] = 0;
-        this.radio[i] = null;
-        this.answer[0][i] = [null,null,null,null];
-      }
-      for(let j=0;j<this.paperData.questionList[1].length;j++){
-        this.bg_flag[1][j] = 0;
-        this.isPractice[1][j] = 0;
-        this.checkList[j] = [];
-        this.answer[1][j] = [null,null,null,null];
-      }
-    },
+    // test(){
+    //   this.radioNum = this.paperData.questionList[0].length;
+    //   this.checkListNum = this.paperData.questionList[1].length;
+    //   this.answer[0] = [];
+    //   this.answer[1] = [];
+    //   for(let i=0;i<this.paperData.questionList[0].length;i++){
+    //     this.bg_flag[0][i] = 0;
+    //     this.isPractice[0][i] = 0;
+    //     this.radio[i] = null;
+    //     this.answer[0][i] = [null,null,null,null];
+    //   }
+    //   for(let j=0;j<this.paperData.questionList[1].length;j++){
+    //     this.bg_flag[1][j] = 0;
+    //     this.isPractice[1][j] = 0;
+    //     this.checkList[j] = [];
+    //     this.answer[1][j] = [null,null,null,null];
+    //   }
+    // },
     getExamData() { //获取当前试卷所有信息
-      // let date = new Date()
-      // this.startTime = this.getTime(date)
-      console.log("test");
+      this.load = false;
       this.$axios.post('/studentAnswer/findAllStudentCollectQuestion',{"userStudentId":this.userInfo.id}).then(res => {  //通过paperId获取试题题目信息
         console.log(res.data);
         if(res.data.code == 200){
           this.paperData.questionList[0] = res.data.data.questionRadioList;
           this.paperData.questionList[1] = res.data.data.questionMultipleList;
-          console.log(this.paperData);
           this.radioNum = this.paperData.questionList[0].length;
+          if(this.radioNum==0){
+            this.type = 1;
+          }
           this.checkListNum = this.paperData.questionList[1].length;
           this.answer[0] = [];
           this.answer[1] = [];
@@ -286,10 +285,12 @@ export default {
             this.checkList[j] = [];
             this.answer[1][j] = [null,null,null,null];
           }
+          this.load = true;
         }else{
           console.log("error");
+          this.$router.go(-1);
+          this.$message.error(res.data.message);
         }
-        this.load = true;
       })
     },
     change(index,type){
@@ -315,13 +316,13 @@ export default {
     next() { //下一题
       if(this.Index == (this.radioNum-1) && this.type == 0){
         if(this.checkListNum==0){
-          this.commitTest();
+          this.commit();
         }else{
           this.type = 1;
           this.Index = 0;
         }
       }else if(this.Index == this.checkListNum-1 && this.type == 1){
-        this.commitTest();
+        this.commit();
       }else{
         this.Index++;
       } 
@@ -373,8 +374,25 @@ export default {
             message: '已取消收藏',
             type: 'success'
           })
+          this.cancelFlag[this.type][this.Index] = true;
         }else{
           console.log("error");
+        }
+      })
+    },
+    collect() {
+      this.$axios.post('/studentAnswer/collectQuestion',{"questionId":this.paperData.questionList[this.type][this.Index].questionId,"userStudentId":this.userInfo.id}).then((res) => {
+        if(res.data.code == 200){
+           this.$message({
+            message: '收藏成功',
+            type: 'success'
+          })
+          this.cancelFlag[this.type][this.Index] = false;
+        }else{
+          this.$message({
+            message: res.data.message,
+            type: 'error'
+          })
         }
       })
     },
@@ -464,11 +482,6 @@ export default {
         console.log("输入为空");
       }
     },
-    commitTest(){
-      this.flag = true;
-      console.log(this.radio);
-      console.log(this.checkAnswer);
-    },
     commit() { //答案提交计算分数
       this.$confirm("是否交卷",{
         confirmButtonText: '立即交卷',
@@ -476,29 +489,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$router.go(-1);
-        //提交成绩信息
-        // let studentQuestionAnswer = [];
-        // for(let i=0;i<this.radioNum;i++){
-        //   studentQuestionAnswer[i] = {};
-        //   studentQuestionAnswer[i].questionId = this.paperData.questionList[0][i].questionId;
-        //   studentQuestionAnswer[i].studentAnswer = this.radio[i];
-        // }
-        // console.log("test2");
-        // for(let j=0;j<this.checkListNum;j++){
-        //   studentQuestionAnswer[this.radioNum+j] = {};
-        //   studentQuestionAnswer[this.radioNum+j].questionId = this.paperData.questionList[1][j].questionId;
-        //   studentQuestionAnswer[this.radioNum+j].studentAnswer = this.checkAnswer[j];
-        // }
-        // console.log("test3");
-        // this.$axios.post("/studentAnswer/answerPublicQuestion?userId="+this.userInfo.id+"&testPaperId="+this.paperId,{studentQuestionAnswer}).then(res => {
-        //   console.log("res",res.data);
-        //   if(res.data.code == 200) {
-        //     console.log("上传成功")
-        //   }else{
-        //     console.log("上传失败")
-        //   }
-        // })
-
       }).catch(() => {
         console.log("继续答题")
       })
@@ -514,7 +504,10 @@ export default {
 </script>
 
 <style lang="scss">
-
+#cc{
+  width: 40px;
+  padding-left: 4px;
+}
 .iconfont.icon-time {
   color: #2776df;
   margin: 0px 6px 0px 20px;
@@ -813,7 +806,7 @@ export default {
   color: red;}
 }
 #lack {.el-checkbox__label,.el-radio__label{
-  color: yellow;}
+  color: #c8c811;}
 }
 // #avatar{
 //   float: left;
