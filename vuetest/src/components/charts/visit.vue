@@ -1,5 +1,5 @@
 <template>
-  <div id="main">
+  <div id="c_main">
     <div id="charts">
       <div ref="userBox" class="box"></div>
     </div>
@@ -203,7 +203,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#main{
+#c_main{
+  background: white;
   width: 100%;
   display: flex;
   flex-direction: row;

@@ -11,14 +11,13 @@
               <!-- <el-button>搜索</el-button> -->
             </el-col>
             <el-col :span="15">
-              <el-menu class="el-menu-demo" mode="horizontal">
-                <!-- <el-menu-item id="menu" index="1" @click="to_index">首页</el-menu-item> -->
+              <el-menu class="el-menu-demo" mode="horizontal" id="headMenu">
                 <el-menu-item id="menu" index="2" @click="to_qes">题库</el-menu-item>
                 <el-menu-item id="menu" index="3" @click="to_knowledgePaper">知识点</el-menu-item>
                 <el-menu-item id="menu" index="4" @click="to_paper">试卷</el-menu-item>
                 <el-menu-item id="menu" index="5" @click="to_collect">收藏</el-menu-item>
                 <el-menu-item id="menu" index="6" @click="to_battle">对战</el-menu-item>
-                <el-menu-item id="menu" index="7" @click="to_memo">辅助功能</el-menu-item>
+                <el-menu-item id="menu" index="7" @click="to_memo">日程提醒</el-menu-item>
               </el-menu>
             </el-col>
             <!-- <el-col :xs="4" :sm="6" :md="8" :lg="9" :xl="11"><div class="grid-content bg-purple"></div></el-col> -->
@@ -108,12 +107,20 @@ export default {
   img {
     width: 100%;
   }
+  .about{
+    min-height: 100vh;
+    background-color: whitesmoke;
+  }
+  #headMenu{
+    border-right: 0px;
+  }
   #menu{
     font-size: 16px;
     font-family: 微软雅黑, 'Microsoft YaHei';
   }
   #header{
     background-color: white;
+    height: auto;
   }
   .infinite-list-wrapper{
     height: 300px;
@@ -151,7 +158,9 @@ export default {
     /* line-height: 200px; */
   }
   #main{
-    background-color: white;
+    background-color: whitesmoke;
+    padding: 0px;
+    margin-top: 0px;
   }
   .el-main {
     background-color: #D3DCE6;

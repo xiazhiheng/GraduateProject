@@ -93,6 +93,7 @@ export const store = createStore({
           num:0,
           value:1,
           label:'马克思主义基本原理概论',
+          img:'book1',
           children:[
             {
               value:1,
@@ -132,6 +133,7 @@ export const store = createStore({
           num:8,
           value:2,
           label:'毛泽东思想和中国特色社会主义理论体系概论',
+          img:'book2',
           children:[
             {
               value:9,
@@ -195,6 +197,7 @@ export const store = createStore({
           num:22,
           value:3,
           label:'中国近代史纲要',
+          img:'book3',
           children:[
             {
               value:23,
@@ -246,6 +249,7 @@ export const store = createStore({
           num:33,
           value:4,
           label:'思想道德修养与法律基础',
+          img:'book4',
           children:[
             {
               value:34,

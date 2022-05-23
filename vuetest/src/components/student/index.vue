@@ -1,36 +1,36 @@
 <template>
   <el-container>
-        <el-main id="main">
-         <el-row :gutter="20">
-          <el-col :span="8">
-            <div class="infinite-list-wrapper" id="news">
-              <ul>
-                <el-scrollbar v-infinite-scroll="load" infinite-scroll-disabled="disabled" infinite-scroll-distance="0px" class="infinite-list">
-                  <li v-for="item in news" class="infinite-list-item"><a id="new" :href="item.newspaperUrl" target="_blank">{{item.newspaperName}}</a></li>
-                  <p v-if="loading">加载中...</p>
-                  <p v-if="noMore">没有更多了</p>
-                </el-scrollbar>
-              </ul>
-            </div>
-          </el-col>
-          <el-col :span="16"> 
-            <div class="ad">
-              <el-carousel trigger="click" >
-                <el-carousel-item v-for="(item,index) in ads">
-                  <img :src="require('@/assets/img/'+item.name+'.jpg')"/>
-                </el-carousel-item>
-              </el-carousel>
-            </div>
-          </el-col>
-        </el-row>
-        </el-main>
-        <el-aside width="200px" id="index_aside">
-          <div class="demo-basic--circle" id="avatar">
-            <el-avatar :size="130" :src="userInfo.imgUrl" class="as-avatar"></el-avatar>
-          </div>
-          <el-button id="answer_button">{{userInfo.name}}</el-button>
-        </el-aside>
-      </el-container>
+    <el-main id="indexmain">
+      <el-row :gutter="20">
+      <el-col :span="8">
+        <div class="infinite-list-wrapper" id="news">
+          <ul>
+            <el-scrollbar v-infinite-scroll="load" infinite-scroll-disabled="disabled" infinite-scroll-distance="0px" class="infinite-list">
+              <li v-for="item in news" class="infinite-list-item"><a id="new" :href="item.newspaperUrl" target="_blank">{{item.newspaperName}}</a></li>
+              <p v-if="loading">加载中...</p>
+              <p v-if="noMore">没有更多了</p>
+            </el-scrollbar>
+          </ul>
+        </div>
+      </el-col>
+      <el-col :span="16"> 
+        <div class="ad">
+          <el-carousel trigger="click" >
+            <el-carousel-item v-for="(item,index) in ads">
+              <img :src="require('@/assets/img/'+item.name+'.jpg')"/>
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+      </el-col>
+    </el-row>
+    </el-main>
+    <el-aside width="200px" id="index_aside">
+      <div class="demo-basic--circle" id="avatar">
+        <el-avatar :size="100" :src="userInfo.imgUrl" class="as-avatar"></el-avatar>
+      </div>
+      <h1>{{userInfo.name}}</h1>
+    </el-aside>
+  </el-container>
 </template>
 <script>
 import {mapState} from 'vuex'
@@ -83,10 +83,8 @@ export default{
 }
 </script>
 <style>
-  #main{
-    background-color: white;
-  }
   #news{
+    background-color: white;
     border-width: 5px;
     border-color: black;
   }
@@ -107,7 +105,7 @@ export default{
     align-items: center;
     justify-content: center;
     min-height: 50px;
-    background: var(--el-color-primary-light-9);
+    /* background: var(--el-color-primary-light-9); */
     margin: 10px;
     color: var(--el-color-primary);
   }
@@ -122,6 +120,11 @@ export default{
   }
   #index_aside{
     text-align: center;
+    background-color: rgb(255, 255, 255);
+    height: 330px;
+  }
+  #index_aside h1{
+    margin-top: 40px;
   }
   .ad{
     width: 100%;
@@ -131,5 +134,15 @@ export default{
     height: 100%;
     width: 100%;
     object-fit: contain;
+  }
+  img{
+    background: whitesmoke;
+  }
+  #indexmain{
+    margin-top: 40px;
+    background: whitesmoke;
+  }
+  #index_aside{
+    margin-top: 40px;
   }
 </style>

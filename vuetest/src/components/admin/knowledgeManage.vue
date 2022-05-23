@@ -1,7 +1,7 @@
 <template>
   <div class="all">
     <div id="top">
-      <el-cascader v-model="value" :options="subject" @change="handleChange" clearable></el-cascader>
+      <el-cascader v-model="value" :options="subject" @change="handleChange" clearable placeholder="章节"></el-cascader>
     </div>
     <el-table :data="pagination.data" border id="k_table">
       <el-table-column prop="subjectName" label="课程"></el-table-column>

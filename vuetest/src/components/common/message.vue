@@ -22,11 +22,13 @@
              <ul>
               <div v-for="(item,index) in friends" id="message_avatar">
                 <li @click="select(index)">
-                  <el-avatar :size="30" :src="friends[index].userImageUrl" class="h-avatar" ></el-avatar>
-                  <p>{{item.userName}}</p>
-                  <p v-if="onlineFlag[index]">在线</p>
-                  <p v-else>离线</p>
-                  <el-badge is-dot class="item" v-if="UnreadFlag[index]"></el-badge>
+                  <div id="mess_left">
+                    <el-avatar :size="30" :src="friends[index].userImageUrl" class="h-avatar" ></el-avatar>
+                    <p>{{item.userName}}</p>
+                    <el-badge is-dot class="item" v-if="UnreadFlag[index]"></el-badge>
+                  </div>
+                  <p v-if="onlineFlag[index]" id="isOnline">在线</p>
+                  <p v-else id="isOnline">离线</p>
                 </li>
               </div>
             </ul>
@@ -343,6 +345,11 @@ export default{
   li{
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    #mess_left{
+      display: flex;
+      align-items: center;
+    }
   }
 }
 #m_right{
@@ -392,5 +399,8 @@ export default{
 }
 #messagehead{
   height: 100%;
+}
+#isOnline{
+  font-size: xx-small;
 }
 </style>

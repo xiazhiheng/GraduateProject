@@ -141,6 +141,14 @@ export default {
 .paper * {
   margin: 20px 0;
 }
+#c_wrapper{
+  background: whitesmoke;
+  min-height: calc(100vh - 80px);
+  height: auto;
+  h4{
+    color: #000;
+  }
+}
 #c_wrapper .paper {
   display: flex;
   justify-content: space-between;

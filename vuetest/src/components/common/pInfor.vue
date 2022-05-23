@@ -20,7 +20,7 @@
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
-        <el-button size="small" type="primary">更换封面</el-button>
+        <el-button size="small" type="primary">更换头像</el-button>
         <div slot="tip" class="el-upload__tip">只能上传jpg文件，且不超过500kb</div>
       </el-upload>
     </div>

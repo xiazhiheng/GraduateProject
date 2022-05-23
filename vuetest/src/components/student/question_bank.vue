@@ -3,15 +3,19 @@
     <!-- <div class="title">我的练习</div> -->
     <div class="wrapper" id="qb_wrapper">
       <ul class="paper">
-        <li v-if="flag" class="item" v-for="(item,index) in list" :key="index" @click="to_chapter(index)">
-          <h4>{{item.label}}</h4>
+        <li v-if="flag" class="item" id="book" v-for="(item,index) in list" :key="index" @click="to_chapter(index)">
+          <el-image
+          style="height: 100%"
+          :src="require('@/assets/img/'+item.img+'.png')"
+          :fit="scale-down"></el-image>
+          <h1>{{item.label}}</h1>
         </li>
-        <li v-else class="item" v-for="(item,index) in list">
+        <li v-else class="item" v-for="(item,index) in list" id="chapter">
           <h4>{{item.label}}</h4>
           <div v-if="!answerFlag[index]">
             <el-button @click="startPractice(item.value)">开始刷题</el-button>
           </div>
-          <div v-else>
+          <div v-else id="button">
             <el-button @click="to_continuePractice(item.value)">继续刷题</el-button>
             <el-button @click="to_fristPractice(item.value)">重新刷题</el-button>
           </div>
@@ -34,7 +38,8 @@ export default {
   },
   computed:mapState(["subject",'userInfo']),
   created() {
-   this.list = this.subject
+   this.list = this.subject;
+   console.log(this.list);
   },
   methods: {
     to_chapter(index){
@@ -68,6 +73,12 @@ export default {
     },
     to_continuePractice(id){
       this.$router.push({path:'/practice',query:{paperId:id,isFrist:0}})
+    },
+    getUrl(img){
+      console.log(img);
+      let url = require('@/assets/img/'+img+'.jpg');
+      console.log(url);
+      return url;
     }
   }
 }
@@ -76,9 +87,15 @@ export default {
 
 <style lang="scss">
 .paper {
+  height: auto;
+  h1{
+    max-width: 240px;
+    color: rgb(74, 68, 68);
+  }
   h4 {
     cursor: pointer;
   }
+
   .item a {
     color: #000;
   }
@@ -102,14 +119,7 @@ export default {
     font-size: 14px;
     color: #88949b;
   }
-  *{
-    margin: 20px 0;
-  }
 }
-// .wrapper {
-//   height: auto;
-//   overflow: auto;
-// }
 .item .info{
   i{
     margin-right: 5px;
@@ -129,9 +139,6 @@ export default {
 #myExam .title {
   margin: 20px;
 }
-#myExam .wrapper {
-  background-color: #fff;
-}
 .item .info i {
   margin-right: 5px;
   color: #0195ff;
@@ -139,7 +146,9 @@ export default {
 .item .info span {
   margin-right: 14px;
 }
-#qb_wrapper{
+#myExam #qb_wrapper{
+  background: whitesmoke;
+  min-height: calc( 100vh - 80px);
   height: auto;
 }
 #qb_wrapper .paper .item {
@@ -148,11 +157,10 @@ export default {
   border: 1px solid #eee;
   box-shadow: 0 0 4px 2px rgba(217,222,234,0.3);
   transition: all 0.6s ease;
-  width: 40%;
+  // width: 400px;
   height: 200px;
   margin-top: 20px;
   margin-left: 50px;
-  margin-right: 50px;
 }
 .paper .item:hover {
   box-shadow: 0 0 4px 2px rgba(140, 193, 248, 0.45)
@@ -170,7 +178,7 @@ export default {
 }
 #qb_wrapper .paper {
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   flex-wrap: wrap;
 }
 #myExam .search-li {
@@ -183,7 +191,33 @@ export default {
 #myExam .title {
   margin: 20px;
 }
-#myExam .wrapper {
-  background-color: #fff;
+#qb_wrapper .paper #chapter{
+  background: white;
+  color: #766a6a;
+  margin: 20px;
+  width: 28%;
+}
+#chapter *{
+  margin: 20px;
+}
+#qb_wrapper .paper #book{
+  width: auto;
+  padding: 0;
+  margin: 20px;
+  display: flex;
+  background: white;
+}
+#chapter #button{
+  display: flex;
+  margin: 0px;
+  button{
+    margin-left: 0px;
+  }
+}
+.paper .el-image{
+  margin-top: 0px;
+  img{
+    margin-top: 0px;
+  }
 }
 </style>

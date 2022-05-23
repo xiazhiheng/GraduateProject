@@ -1,8 +1,8 @@
 <!--考生答题界面-->
 <template>
-  <div v-if="flag">
+  <div v-if="flag" id="k_main">
     <div id="top">
-      <el-select v-model="condition.courseId"  @change="courseChange">
+      <el-select v-model="condition.courseId"  @change="courseChange" placeholder="课程">
       <el-option
         v-for="item in subject"
         :key="item.value"
@@ -10,7 +10,7 @@
         :value="item.value">
       </el-option>
       </el-select>
-      <el-select v-model="condition.chapterId">
+      <el-select v-model="condition.chapterId" placeholder="章节">
         <el-option v-if="condition.courseId!=null"
           v-for="item in subject[condition.courseId-1].children"
           :key="item.value"
@@ -27,7 +27,12 @@
             <el-checkbox :label="scope.row.knowledgeId" ></el-checkbox>
           </template>
         </el-table-column>
-        <el-table-column prop="knowledgeContent" label="标签"></el-table-column>
+        <el-table-column prop="knowledgeContent" label="知识点"></el-table-column>
+        <el-table-column label="视频" width="200px">
+          <template v-slot="scope">
+            <el-button @click="play(scope.$index)">播放</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-button id="create" type="primary" @click="start">开始答题</el-button>
     </el-checkbox-group>
@@ -452,13 +457,17 @@ export default {
     checkChange(val) { 
       this.checkL.sort();
     },
-    play(){
-      this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.questionList[this.Index].knowledgeId}).then(res=>{
-        console.log("knowledge",res);
-        this.videoUrl = res.data.data.videoUrl;
-        this.k_dialogVisible = true;
-      })
-    },
+    // play(){
+    //   this.$axios.post('admin/findKnowledgeIdById',{"knowledgeId":this.questionList[this.Index].knowledgeId}).then(res=>{
+    //     console.log("knowledge",res);
+    //     this.videoUrl = res.data.data.videoUrl;
+    //     this.k_dialogVisible = true;
+    //   })
+    // },
+    play(index){
+      this.videoUrl = this.pagination.data[index].videoUrl;
+      this.k_dialogVisible = true;
+    }
   },
   // beforeRouteLeave(){
   //   this.$axios.post('/studentAnswer/recordQuestion?studentId='+this.userInfo.id+'&questionId='+this.paperData.questionList[this.type][this.Index].questionId+'&chapterId='+this.paperId);
@@ -837,5 +846,19 @@ export default {
   width: 100%;
   margin-top: 10px;
   background-color: white;
+}
+#top{
+  margin-top: 20px;
+  margin-bottom: 10px;
+  display: flex;
+}
+#t_table{
+  width: 670px;
+}
+#create{
+  margin-top: 20px;
+}
+#k_main{
+  margin-left: 40px;
 }
 </style>

@@ -5,14 +5,17 @@
       <ul>
         <li v-for="(item,index) in chartList">
           <span>{{index+1}}</span>
-          <el-avatar :src="item.userImageUrl"></el-avatar>
-          <span>{{item.userName}}</span>
+          <div id="user">
+            <el-avatar :src="item.userImageUrl"></el-avatar>
+            <span>{{item.userName}}</span>
+          </div>
           <span>{{item.studentScore}}</span>
         </li>
+
       </ul>
     </el-main>
-    <el-main>
-      <el-avatar :src="userInfo.imgUrl" id="myavatar"></el-avatar>
+    <el-main id="battle_right">
+      <el-avatar :src="userInfo.imgUrl" id="myavatar" :size="120"></el-avatar>
       <p v-if="matchFlag">匹配中</p>
       <el-button v-if="matchFlag" @click="cancelMatch">取消匹配</el-button>
       <el-button v-else @click="match">开始匹配</el-button>
@@ -115,7 +118,7 @@ export default {
     //获取我的排名
     getMyRanking(){
       this.$axios.post('/onlineBattle/findUserRank',{"userId":this.userInfo.id}).then(res=>{
-        console.log(res.data);
+        console.log("my",res.data);
         if(res.data.code==200){
           this.myRanking = res.data.data;
         }else{
@@ -343,11 +346,49 @@ export default {
   }
 }
 #chart{
+  color: black;
+  background: whitesmoke;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  width: 200px;
+  ul{
+  //   width: 100%;
+  }
   li{
-    margin: 10px;
+    padding: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 100%;
+    background: white;
+    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    *{
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+    #user{
+      display: flex;
+      align-items: center;
+      *{
+        margin-right: 10px;
+        margin-left:10px;
+      }
+    }
+  }
+}
+#battle_right{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: whitesmoke;
+  color: black;
+  *{
+    margin-top: 20px;
   }
 }
 #myavatar{

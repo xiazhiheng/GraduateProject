@@ -1,9 +1,9 @@
 <template>
-  <div class="grid-content bg-purple-light hr">
+  <div class="grid-content bg-purple-light hr" id="rt">
     <el-dropdown trigger="click" @visible-change="getUnRead">
       <div class="el-dropdown-link" id="login_head">
         <el-avatar :size="50" :src="userInfo.imgUrl" class="h-avatar" :fit="none"></el-avatar>
-        <!-- <el-button type="text" id="login_name">{{userInfo.name}}</el-button> -->
+        <el-button type="text" id="login_name">个人中心</el-button>
       </div>
       <template #dropdown>
         <el-dropdown-menu>
@@ -64,8 +64,7 @@
     <el-dialog 
     title="修改密码"
     v-model="up_dialogVisible"
-    width="30%"
-    :before-close="s_handleClose">
+    width="30%">
       <el-form id="form">
         <el-form-item label="旧密码 :">
           <el-input v-model="form.oldPassword" show-password onkeyup="this.value=this.value.replace(/[, ]/g,'')" maxlength="18"></el-input>
@@ -212,6 +211,9 @@
   }
 </script>
 <style>
+  #rt{
+    background-color: white;
+  }
   .el-dropdown-link {
     cursor: pointer;
     color: #409EFF;

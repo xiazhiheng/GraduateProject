@@ -1,5 +1,5 @@
 <template>
-  <div id="main">
+  <div id="p_main">
     <div id="charts">
       <div ref="NumBox" class="box"></div>
     </div>
@@ -165,9 +165,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#main{
+#p_main{
   width: 100%;
   display: flex;
+  background: white;
   flex-direction: row;
   flex-wrap: wrap;
 }

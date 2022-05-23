@@ -57,11 +57,13 @@
           <el-button @click="searchStudent"><el-icon><search/></el-icon></el-button>
         </template>
       </el-input>
-      <ul>
+      <ul id="InfoList">
         <li v-for="item in userList" id="addList"> 
           <el-avatar :size="30" class="h-avatar" :src="item.userImageUrl"></el-avatar>
-          <p>{{item.userName}}</p>
-          <el-button @click="addStudent(item.userId)">添加</el-button>
+          <div id="info_r">
+            <p>{{item.userName}}</p>
+            <el-button @click="addStudent(item.userId)" size="small" type="text">添加</el-button>
+          </div>
         </li>
       </ul>
     </el-dialog>
@@ -227,7 +229,7 @@ export default {
             type: 'success'
           })
         }else{
-          console.log("error");
+          this.$message.error("已添加，请勿重复添加");
         }
       });
     },
@@ -250,7 +252,7 @@ export default {
             type: 'success'
           })
         }else{
-          console.log("error");
+          this.$message.error("已添加，请勿重复添加");
         }
       });
     },

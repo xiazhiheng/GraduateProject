@@ -1,5 +1,6 @@
 <template>
   <div class="all">
+    <el-button type="primary" @click="to_add">添加试题</el-button>
     <el-table :data="pagination.data" border id="t_table" v-if="flag">
       <el-table-column prop="subjectName" label="课程" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="chapterName" label="章节" :show-overflow-tooltip="true"></el-table-column>
@@ -17,28 +18,6 @@
           </template>
         </el-table-column>
     </el-table>
-    <el-button type="primary" @click="to_add">添加试题</el-button>
-
-    <!-- <el-checkbox-group  v-model="checkList" v-else>
-      <el-table :data="pagination.data" border id="t_table">
-        <el-table-column width="34px" fixed="left">
-          <template v-slot="scope">
-            <el-checkbox :label="scope.row.questionId" ></el-checkbox>
-          </template>
-        </el-table-column>
-        <el-table-column prop="subjectName" label="课程" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="chapterName" label="章节" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="difficultyName" label="难度"></el-table-column>
-        <el-table-column prop="typeName" label="类型"></el-table-column>
-        <el-table-column prop="questionContent" label="题干" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionOptionA" label="选项A" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionOptionB" label="选项B" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionOptionC" label="选项C" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionOptionD" label="选项D" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="questionAnswer" label="答案"></el-table-column>
-      </el-table>
-      <el-button @click="submit" type="primary" size="small">添加</el-button>
-    </el-checkbox-group> -->
 
     <el-pagination
       @size-change="handleSizeChange"
@@ -50,6 +29,8 @@
       :total="pagination.total"
       class="page">
     </el-pagination>
+
+    
   </div>
 </template>
 
@@ -86,16 +67,9 @@ export default {
           this.getQuestionInfoBypage();
 			})
     },
-    // getPublicQuestionInfo() {
-    //   // 查询公共试题信息
-    //   this.$axios.get('/teacher/findAddElseQuestion',{params:{"testPaperId":this.paperId,"teacherId":this.userId}}).then((res)=>{
-		// 			this.data = res.data.data;
-    //       this.getQuestionInfoBypage();
-    //       this.flag=false;
-		// 	})
-    // },
     getQuestionInfoBypage(){
       // 获取该分页的试题信息
+      this.pagination.total = this.data.length;
       this.pagination.data = this.data.slice((this.pagination.current-1)*this.pagination.size,this.pagination.current*this.pagination.size);
       for(let i=0;i<this.pagination.data.length;i++){
         this.pagination.data[i].subjectName = this.subject[this.pagination.data[i].courseId-1].label;
@@ -114,13 +88,13 @@ export default {
     },
     //改变当前记录条数
     handleSizeChange(val) {
-      // this.pagination.size = val;
-      // this.getTeacherInfo();
+      this.pagination.size = val;
+      this.getQuestionInfoBypage();
     },
     //改变当前页码，重新发送请求
     handleCurrentChange(val) {
-      // this.pagination.current = val;
-      // this.getTeacherInfo();
+      this.pagination.current = val;
+      this.getQuestionInfoBypage();
     },
     handleClose(done) { //关闭提醒
       this.$confirm('确认关闭？')

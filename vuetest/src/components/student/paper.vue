@@ -6,8 +6,8 @@
         <li class="search-li"><div class="icon"><input type="text" placeholder="试卷名称" class="search" v-model="input"><i class="el-icon-search"></i></div></li>
         <li><el-button type="primary" @click="search()">搜索试卷</el-button></li>
       </ul>
-      <ul class="paper" v-loading="loading">
-        <li class="item" v-for="(item,index) in pagination.data" :key="index">
+      <ul class="paper" v-loading="loading" id="testPaper">
+        <li class="item" v-for="(item,index) in pagination.data" :key="index" id="onePaper">
           <h4>{{item.testPaperName}}</h4>
           <!-- <p class="name">{{item.paperName}}</p>
           <p class="time">{{item.difficultyName}}</p> -->
@@ -25,7 +25,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="pagination.current"
-          :page-sizes="[6, 10, 20, 40]"
+          :page-sizes="[6, 12]"
           :page-size="pagination.size"
           layout="total, sizes, prev, pager, next, jumper"
           :total="pagination.total">
@@ -120,6 +120,10 @@ export default {
 
 
 <style>
+#p_wrapper{
+  height: auto;
+  min-height: calc(100vh - 80px);
+}
 #answer{
   color: #000;
 }
@@ -142,7 +146,7 @@ export default {
 }
 .wrapper{
   /* height: 900px; */
-  overflow: scroll;
+  overflow: auto;
 }
 .paper .item a {
   color: #000;
@@ -166,7 +170,7 @@ export default {
   margin-right: 14px;
 }
 .paper .item {
-  width: 380px;
+  width: 27%;
   border-radius: 4px;
   padding: 20px 30px;
   border: 1px solid #eee;
@@ -195,7 +199,7 @@ export default {
 }
 .wrapper .top {
   border-bottom: 1px solid #eee;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 #myExam .search-li {
   margin-left: auto;
@@ -233,7 +237,7 @@ export default {
   margin: 20px;
 }
 #myExam .wrapper {
-  background-color: #fff;
+  background:whitesmoke;
 }
 .wrapper .top .order {
   cursor: pointer;
@@ -274,11 +278,11 @@ export default {
 .paper * {
   margin: 20px 0;
 }
-.wrapper .paper {
+/* .wrapper .paper {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-}
+} */
 .top .el-icon-search {
   position: absolute;
   right: 10px;
@@ -325,12 +329,20 @@ export default {
 #myExam .title {
   margin: 20px;
 }
-#myExam .wrapper {
-  background-color: #fff;
-}
 #foot{
   width: 100%;
   display: flex;
   justify-content: center;
+}
+#onePaper{
+  width: 27%;
+  background: white;
+  color:#4c3c3c;
+}
+#testPaper{
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  margin-left: 40px;
 }
 </style>
